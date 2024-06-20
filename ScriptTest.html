@@ -6,11 +6,11 @@
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
   </head>
   <body>
-    <h1> DATA VALIDITY TEST:</h1>
+    <h1> DATA VALIDITY TESTER:</h1>
     <div id="Value"></div> 
     <div></div>
     <div id="valueValidity"></div>
-    <div id="errorMessage"> </div>
+    <div id="errorMessage"></div>
     <script>
       function isValidJSON(jsonString) {
       try {
@@ -27,17 +27,17 @@
           var rowValue = record.Value;
           if (rowType == 'JSON'){
              if( isValidJSON(rowValue)){
-               document.getElementById('valueValidity').innerText = '            Your '+record.Field+' '+record.Controller+' instance is VALID'
+               document.getElementById('valueValidity').innerText = '            Your '+record.Field+' '+record.Controller+' instance is VALID';
                document.getElementById('errorMessage').innerText = ' '
              }
              else{
-              document.getElementById('valueValidity').innerText = '             Your '+record.Field+' '+record.Controller+' instance is NOT VALID'
+              document.getElementById('valueValidity').innerText = '             Your '+record.Field+' '+record.Controller+' instance is NOT VALID';
               document.getElementById('errorMessage').innerText = +e.message+
                 }
             }
         else{
-           document.getElementById('valueValidity').innerText = '' 
-           document.getElementById('errorMessage').innerText = ' '
+           document.getElementById('valueValidity').innerText = '';
+           document.getElementById('errorMessage').innerText = ''
         }
      });
     </script>
