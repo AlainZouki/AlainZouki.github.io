@@ -27,10 +27,10 @@
           var rowValue = record.Value;
           if (rowType == 'JSON'){
              if( isValidJSON(rowValue)){
-               document.getElementById('valueValidity').innerText = 'Your '+record.Field+' '+record.Controller+' instance is'  <p style="color: green;">VALID</p>
+               document.getElementById('valueValidity').innerText = 'Your '+record.Field+' '+record.Controller+' instance is VALID'
              }
              else{
-              document.getElementById('valueValidity').innerText = 'Your '+record.Field+' '+record.Controller+' instance is'  <p style="color: red;">NOT VALID</p>
+              document.getElementById('valueValidity').innerText = 'Your '+record.Field+' '+record.Controller+' instance is NOT VALID' 
                 }
             } 
      });
