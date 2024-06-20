@@ -7,10 +7,21 @@
   </head>
   <body>
     <pre id="readout">Waiting for data...</pre>
+    <div id="Field"></div>
+    <div id="Controller"></div>
     <script>
       grist.ready({columns: ['Field', 'Controller', 'Value', 'Type']});
-      grist.onRecord(function(record) {
-        //document.getElementById('readout').innerHTML = JSON.stringify(record, null, 2);
+      grist.onRecord(function(record, mappings) {
+        const mapped = grist.mapColumnNames(record);
+        if (mapped) {
+    document.getElementById('Field').innerText = mapped.Field;
+    document.getElementById('Controller').innerText = mapped.Controller;
+    //console.log(`Using ${mappings.Link} and ${mappings.Title} columns`);
+  } else {
+    // Helper returned a null value. It means that not all
+    // required columns were mapped.
+    //console.error("Please map all columns");
+  }
 
       });
     </script>
