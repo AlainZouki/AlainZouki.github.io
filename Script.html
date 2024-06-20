@@ -6,16 +6,36 @@
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
   </head>
   <body>
-    <div id="Field"></div>
-    <div id="Controller"></div>
+    <h1>Your Data Format validity Tester:</h1>
+    <div id="Value"></div>
+    <input type="text" id="valueValidity">
     <script>
+      function isValidJSON(jsonString) {
+      try {
+        JSON.parse(jsonString);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
       grist.ready({columns: ['Field', 'Controller', 'Value', 'Type']});
       grist.onRecord(function(record, mappings) {
         const mapped = grist.mapColumnNames(record);
         if (mapped) {
-    document.getElementById('Field').innerText = mapped.Field;
-    document.getElementById('Controller').innerText = mapped.Controller;
-    //console.log(`Using ${mappings.Link} and ${mappings.Title} columns`);
+          document.getElementById('Value').innerText = mapped.Value
+          var rowType = mapped.Type;
+          var rowValue = mapped.Value;
+          if (rowType == 'JSON'){
+            if( isValidJSON(rowValue)){
+              document.getElementById('valueValidity').Value = 'Your'+mapped.Field+mapped.Controller+'instance is valid'
+            }
+            else{
+              document.getElementById('valueValidity').Value = 'Your'+mapped.Field+mapped.Controller+'instance is not valid'
+            }
+          }
+
+    //document.getElementById('Field').innerText = mapped.Field;
+   
   } else {
     // Helper returned a null value. It means that not all
     // required columns were mapped.
