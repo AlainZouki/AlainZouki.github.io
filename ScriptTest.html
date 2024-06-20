@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>onRecord</title>
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  </head>
+  <body>
+    <h1> DATA FORMAT VALIDITY TESTER:</h1>
+    <div id="Value"></div> 
+    <div></div>
+     <div id="valueValidity"></div>
+   
+    <script>
+      function isValidJSON(jsonString) {
+      try {
+        JSON.parse(jsonString);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+      grist.ready({columns: ['Field', 'Controller', 'Value', 'Type'], requiredAccess: 'read table'});
+      grist.onRecord(function(record, mappings) {
+        const mapped = grist.mapColumnNames(record);
+        if (mapped) {
+          document.getElementById('Value').innerText = mapped.Value
+          var rowType = mapped.Type;
+          var rowValue = mapped.Value;
+          if (rowType == 'JSON'){
+             if( isValidJSON(rowValue)){
+               document.getElementById('valueValidity').innerText = 'Your '+mapped.Field+' '+mapped.Controller+' instance is'  <p style="color: green;">VALID</p>
+             }
+             else{
+              document.getElementById('valueValidity').innerText = 'Your '+mapped.Field+' '+mapped.Controller+' instance is'  <p style="color: red;">NOT VALID</p>
+                }
+          }
 
+    //document.getElementById('Field').innerText = mapped.Field;
+   
+  } else {
+     Helper returned a null value. It means that not all
+     required columns were mapped.
+    console.error("Please map all columns");
+  }
+
+      });
+    </script>
+  </body>
+</html>
