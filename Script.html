@@ -27,10 +27,10 @@
           var rowValue = mapped.Value;
           if (rowType == 'JSON'){
             if( isValidJSON(rowValue)){
-              document.getElementById('valueValidity').Value = 'Your'+mapped.Field+mapped.Controller+'instance is valid'
+              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+mapped.Controller+'instance is valid'
             }
             else{
-              document.getElementById('valueValidity').Value = 'Your'+mapped.Field+mapped.Controller+'instance is not valid'
+              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+mapped.Controller+'instance is not valid'
             }
           }
 
