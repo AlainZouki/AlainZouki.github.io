@@ -20,7 +20,7 @@
         return false;
       }
     }
-      grist.ready({requiredAccess: 'read table'});
+      grist.ready();
       grist.onRecord(function(record) {
         document.getElementById('Value').innerText = record.Value;
           var rowType = record.Type;
