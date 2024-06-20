@@ -6,9 +6,13 @@
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
   </head>
   <body>
-    <h1>Your Data Format validity Tester:</h1>
-    <div id="Value"></div>
+    <h1> DATA FORMAT VALIDITY TESTER:</h1>
+    <div id="Value"></div> 
+    <div></div>
+    <div></div>
+    <div></div>
     <div id="valueValidity"></div>
+   
     <script>
       function isValidJSON(jsonString) {
       try {
@@ -26,12 +30,12 @@
           var rowType = mapped.Type;
           var rowValue = mapped.Value;
           if (rowType == 'JSON'){
-            if( isValidJSON(rowValue)){
-              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+'instance is valid'
-            }
-            else{
-              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+'instance is not valid'
-            }
+             if( isValidJSON(rowValue)){
+               document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+' instance is'  <p style="color: green;">VALID</p>
+             }
+             else{
+              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+' instance is'  <p style="color: red;">NOT VALID</p>
+                }
           }
 
     //document.getElementById('Field').innerText = mapped.Field;
