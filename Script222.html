@@ -34,10 +34,10 @@
       if (rowType === 'JSON') {
         var result = isValidJSON(rowValue);
         if (result.valid) {
-          document.getElementById('valueValidity').innerText = 'Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
           document.getElementById('errorMessage').innerText = '';
         } else {
-          document.getElementById('valueValidity').innerText = 'Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
           document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
         }
       }
