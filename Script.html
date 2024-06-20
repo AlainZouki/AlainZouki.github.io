@@ -8,7 +8,7 @@
   <body>
     <h1>Your Data Format validity Tester:</h1>
     <div id="Value"></div>
-    <input type="text" id="valueValidity">
+    <div id="valueValidity"></div>
     <script>
       function isValidJSON(jsonString) {
       try {
@@ -27,10 +27,10 @@
           var rowValue = mapped.Value;
           if (rowType == 'JSON'){
             if( isValidJSON(rowValue)){
-              document.getElementById('valueValidity').value = 'Your'+mapped.Field+' '+mapped.Controller+'instance is valid'
+              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+'instance is valid'
             }
             else{
-              document.getElementById('valueValidity').value = 'Your'+mapped.Field+' '+mapped.Controller+'instance is not valid'
+              document.getElementById('valueValidity').innerText = 'Your'+mapped.Field+' '+mapped.Controller+'instance is not valid'
             }
           }
 
