@@ -6,7 +6,7 @@
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
   </head>
   <body>
-    <h1> DATA VALIDITY TESTER:</h1>
+    <h1> DATA VALIDITY TEST:</h1>
     <div id="Value"></div> 
     <div></div>
     <div id="valueValidity"></div>
@@ -20,24 +20,24 @@
         return false;
       }
     }
-      grist.ready();
+      grist.ready({requiredAccess: 'read table'});
       grist.onRecord(function(record) {
-        document.getElementById('Value').innerText = record.Value
+        document.getElementById('Value').innerText = record.Value;
           var rowType = record.Type;
           var rowValue = record.Value;
           if (rowType == 'JSON'){
              if( isValidJSON(rowValue)){
-               document.getElementById('valueValidity').innerText = '            Your '+record.Field+' '+record.Controller+' instance is VALID';
-               document.getElementById('errorMessage').innerText = ' '
+               document.getElementById('valueValidity').innerText = '            Your '+record.Field+' '+record.Controller+' instance is VALID' ;
+               document.getElementById('errorMessage').innerText = ' ';
              }
              else{
-              document.getElementById('valueValidity').innerText = '             Your '+record.Field+' '+record.Controller+' instance is NOT VALID';
-              document.getElementById('errorMessage').innerText = +e.message+
+              document.getElementById('valueValidity').innerText = '             Your '+record.Field+' '+record.Controller+' instance is NOT VALID' ;
+              document.getElementById('errorMessage').innerText = +e.message+ ;
                 }
             }
         else{
            document.getElementById('valueValidity').innerText = '';
-           document.getElementById('errorMessage').innerText = ''
+           document.getElementById('errorMessage').innerText = '' ;
         }
      });
     </script>
