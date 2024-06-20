@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>onRecord</title>
-    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-  </head>
-  <body>
-    <h1> DATA VALIDITY TEST:</h1>
-    <div id="Value"></div> 
-    <div></div>
-    <div id="valueValidity"></div>
-    <div id="errorMessage"></div>
-    <script>
-      function isValidJSON(jsonString) {
+<head>
+  <meta charset="utf-8">
+  <title>onRecord</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>DATA VALIDITY TESTER:</h1>
+  <div id="Value"></div> 
+  <div></div>
+  <div id="valueValidity"></div>
+  <div id="errorMessage"></div>
+  <script>
+    function isValidJSON(jsonString) {
       try {
         JSON.parse(jsonString);
-        return true;
+        return { valid: true, error: null };
       } catch (e) {
-        return false;
+        return { valid: false, error: e.message };
       }
     }
-      grist.ready();
-      grist.onRecord(function(record) {
-        document.getElementById('Value').innerText = record.Value;
-          var rowType = record.Type;
-          var rowValue = record.Value;
-          if (rowType == 'JSON'){
-             if( isValidJSON(rowValue)){
-               document.getElementById('valueValidity').innerText = '            Your '+record.Field+' '+record.Controller+' instance is VALID' ;
-               document.getElementById('errorMessage').innerText = ' ';
-             }
-             else{
-              document.getElementById('valueValidity').innerText = '             Your '+record.Field+' '+record.Controller+' instance is NOT VALID' ;
-              document.getElementById('errorMessage').innerText = +e.message+ ;
-                }
-            }
-        else{
-           document.getElementById('valueValidity').innerText = '';
-           document.getElementById('errorMessage').innerText = '' ;
+
+    grist.ready();
+    grist.onRecord(function(record) {
+      document.getElementById('Value').innerText = record.Value;
+      var rowType = record.Type;
+      var rowValue = record.Value;
+
+      // Clear previous messages
+      document.getElementById('valueValidity').innerText = '';
+      document.getElementById('errorMessage').innerText = '';
+
+      if (rowType === 'JSON') {
+        var result = isValidJSON(rowValue);
+        if (result.valid) {
+          document.getElementById('valueValidity').innerText = 'Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
+          document.getElementById('errorMessage').innerText = '';
+        } else {
+          document.getElementById('valueValidity').innerText = 'Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
+          document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
         }
-     });
-    </script>
-  </body>
+      }
+    });
+  </script>
+</body>
 </html>
