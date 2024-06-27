@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>onRecord</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>DATA VALIDITY TEST:</h1>
+  <div id="Value"></div> 
+  <br><br><br><br><br><br><br><br>
+  <div id="valueValidity"></div>
+  <br><br>
+  <div id="errorMessage"></div>
+  <script>
+    function isValidJSON(jsonString) {
+      try {
+        JSON.parse(jsonString);
+        return { valid: true, error: null };
+      } catch (e) {
+        return { valid: false, error: e.message };
+      }
+    }
+    function isValidHTML(htmlString) {
+     const parser = new DOMParser();
+     const htmlDoc = parser.parseFromString(htmlString, "text/html");
+     const parserError = htmlDoc.getElementsByTagName("parsererror");
+
+    if (parserError.length > 0) {
+    return { valid: false, error: parserError[0].textContent };
+    }
+    return { valid: true, error: null };
+  }
+     function isValidXML(xmlString) {
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+      const parserError = xmlDoc.getElementsByTagName("parsererror");
+
+      if (parserError.length > 0) {
+        return { valid: false, error: parserError[0].textContent };
+      }
+      return { valid: true, error: null };
+    }
+
+    grist.ready();
+    grist.onRecord(function(record) {
+      document.getElementById('Value').innerText = record.Value;
+      var rowType = record.Type;
+      var rowValue = record.Value;
+
+      // Clear previous messages
+      document.getElementById('valueValidity').innerText = '';
+      document.getElementById('errorMessage').innerText = '';
+
+      if (rowType === 'JSON') {
+        var result = isValidJSON(rowValue);
+        if (result.valid) {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
+          document.getElementById('errorMessage').innerText = '';
+        } else {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
+          document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
+        }
+      }
+
+      if (rowType === 'XML') {
+        var result = isValidXML(rowValue);
+        if (result.valid) {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
+          document.getElementById('errorMessage').innerText = '';
+        } else {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
+          document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
+        }
+      }
+      if (rowType === 'HTML') {
+        var result = isValidHTML(rowValue);
+        if (result.valid) {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
+          document.getElementById('errorMessage').innerText = '';
+        } else {
+          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
+          document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
