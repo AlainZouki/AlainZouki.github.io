@@ -6,7 +6,7 @@
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
 <body>
-  <h1>DATA VALIDITY TEST::</h1>
+  <h1>DATA VALIDITY TEST:</h1>
   <div id="Value"></div> 
   <br><br><br><br><br><br><br><br>
   <div id="valueValidity"></div>
@@ -22,15 +22,15 @@
       }
     }
     function isValidHTML(htmlString) {
-     const parser = new DOMParser();
-     const htmlDoc = parser.parseFromString(htmlString, "text/html");
-     const parserError = htmlDoc.getElementsByTagName("parsererror");
+      const parser = new DOMParser();
+      const htmlDoc = parser.parseFromString(htmlString, "text/html");
+      const parserError = htmlDoc.querySelector("parsererror");
 
-    if (parserError.length > 0) {
-    return { valid: false, error: parserError[0].textContent };
+      if (parserError) {
+        return { valid: false, error: parserError.textContent };
+      }
+      return { valid: true, error: null };
     }
-    return { valid: true, error: null };
-  }
      function isValidXML(xmlString) {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlString, "application/xml");
