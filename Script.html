@@ -21,16 +21,6 @@
         return { valid: false, error: e.message };
       }
     }
-    function isValidHTML(htmlString) {
-      const parser = new DOMParser();
-      const htmlDoc = parser.parseFromString(htmlString, "text/html");
-      const parserError = htmlDoc.querySelector("parsererror");
-
-      if (parserError) {
-        return { valid: false, error: parserError.textContent };
-      }
-      return { valid: true, error: null };
-    }
      function isValidXML(xmlString) {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlString, "application/xml");
@@ -65,16 +55,6 @@
 
       if (rowType === 'XML') {
         var result = isValidXML(rowValue);
-        if (result.valid) {
-          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
-          document.getElementById('errorMessage').innerText = '';
-        } else {
-          document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is NOT VALID';
-          document.getElementById('errorMessage').innerText = 'Error: ' + result.error;
-        }
-      }
-      if (rowType === 'HTML') {
-        var result = isValidHTML(rowValue);
         if (result.valid) {
           document.getElementById('valueValidity').innerText = '             Your ' + record.Field + ' ' + record.Controller + ' instance is VALID';
           document.getElementById('errorMessage').innerText = '';
