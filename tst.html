@@ -3,28 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Form</title>
-    <script>
-        function handleReset() {
-            document.getElementById('textbox').value = '';
-            document.getElementById('dropdown').selectedIndex = 0;
-        }
-    </script>
+    <title>Create Grist Table</title>
 </head>
 <body>
-    <h2>Simple Form</h2>
-    <form id="simpleForm">
-        <label for="textbox">Enter Text:</label><br>
-        <input type="text" id="textbox" name="textbox"><br><br>
-        
-        <label for="dropdown">Choose an option:</label><br>
-        <select id="dropdown" name="dropdown">
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
-        </select><br><br>
-        
-        <button type="button" onclick="handleReset()">Reset</button>
-    </form>
+    <h1>Create a New Table in Grist</h1>
+    <button id="createTableButton">Create Table</button>
+
+    <script>
+        document.getElementById('createTableButton').addEventListener('click', function() {
+            // Grist API key and document URI
+            const apiKey = 'd6b96aeea73f810458eb8eaa7c5da0e424a31bdd';
+            const documentURI ='https://docs.getgrist.com/api/docs/1HzshMKUMX7bmahGHiU16j/tables';
+
+
+            // New table structure
+            const newTable = {
+                id: "NewTable",
+                columns: [
+                    
+                ]
+            };
+
+            // Make the API request to create a new table
+            fetch(documentURI, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(newTable)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error creating table:', data.error);
+                    alert('Error creating table: ' + data.error);
+                } else {
+                    console.log('Table created successfully:', data);
+                    alert('Table created successfully!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error);
+            });
+        });
+    </script>
 </body>
 </html>
