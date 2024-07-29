@@ -3,50 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Grist Table</title>
+    <title>Run Python Script</title>
 </head>
 <body>
-    <h1>Create a New Table in Grist</h1>
-    <button id="createTableButton">Create Table</button>
+    <button id="run-script">Run Python Script</button>
 
     <script>
-        document.getElementById('createTableButton').addEventListener('click', function() {
-            // Grist API key and document URI
-            const apiKey = 'd6b96aeea73f810458eb8eaa7c5da0e424a31bdd';
-            const documentURI ='https://docs.getgrist.com/api/docs/1HzshMKUMX7bmahGHiU16j/tables';
-
-
-            // New table structure
-            const newTable = {
-                id: "NewTable",
-                columns: [
-                    
-                ]
-            };
-
-            // Make the API request to create a new table
-            fetch(documentURI, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify(newTable)
+        document.getElementById('run-script').addEventListener('click', () => {
+            fetch('/run-python-script', {
+                method: 'POST'
             })
             .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error creating table:', data.error);
-                    alert('Error creating table: ' + data.error);
-                } else {
-                    console.log('Table created successfully:', data);
-                    alert('Table created successfully!');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error: ' + error);
-            });
+            .then(data => alert('Script executed successfully!'))
+            .catch(error => alert('Error executing script: ' + error));
         });
     </script>
 </body>
