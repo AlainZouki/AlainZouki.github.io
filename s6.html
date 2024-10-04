@@ -104,7 +104,7 @@
       });
 
       // Extract distinct Tier values from the records
-      const tierValues = records.map(record => record.Tier);
+      const tierValues = records.map(record => record.tier);
       const distinctTiers = [...new Set(tierValues)];
 
       // Populate the tier dropdown
@@ -118,7 +118,7 @@
       });
 
       // Extract distinct Facility values from the records
-      const facilityValues = records.map(record => record.Facility);
+      const facilityValues = records.map(record => record.facility);
       const distinctFacilities = [...new Set(facilityValues)];
 
       // Populate the facility dropdown
