@@ -6,7 +6,7 @@
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
 <body>
-  <h1>Select a vCenter</h1>
+  <h3>Select a vCenter</h3>
   <select id="vCenterDropdown">
     <option value="">Select a vCenter</option>
   </select>
@@ -27,9 +27,6 @@
 
       // Log distinct vCenter values to the console
       console.log(distinctVCenters);
-
-      // Update the HTML to display distinct vCenters
-      document.getElementById('readout').innerHTML = JSON.stringify(distinctVCenters, null, 2);
 
       // Get the dropdown element
       const dropdown = document.getElementById('vCenterDropdown');
