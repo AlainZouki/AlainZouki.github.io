@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Distinct vCenters and Storage Types</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>Select a vCenter</h1>
+  <select id="vCenterDropdown">
+    <option value="">Select a vCenter</option>
+  </select>
+
+  <h1>Select Storage Type</h1>
+  <select id="storageTypeDropdown">
+    <option value="">Select a Storage Type</option>
+  </select>
+
+  <pre id="readout">Waiting for data...</pre>
+  
+  <script>
+    // Wait for the Grist Plugin API to be ready
+    grist.ready();
+
+    // Listen for records from the Grist table
+    grist.onRecords(function(records) {
+      // Extract vCenter values from the records
+      const vCenterValues = records.map(record => record.vCenter);
+
+      // Use Set to get distinct vCenter values
+      const distinctVCenters = [...new Set(vCenterValues)];
+
+      // Log distinct vCenter values to the console
+      console.log(distinctVCenters);
+
+      // Populate the vCenter dropdown
+      const vCenterDropdown = document.getElementById('vCenterDropdown');
+      vCenterDropdown.innerHTML = '<option value="">Select a vCenter</option>'; // Reset the dropdown
+
+      // Add each distinct vCenter value as an option in the dropdown
+      distinctVCenters.forEach(vCenter => {
+        const option = document.createElement('option');
+        option.value = vCenter; // Set the option value
+        option.textContent = String(vCenter); // Set the option text (as a string)
+        vCenterDropdown.appendChild(option); // Append the option to the dropdown
+      });
+    });
+
+    // Event listener for vCenter dropdown change
+    document.getElementById('vCenterDropdown').addEventListener('change', function() {
+      const selectedVCenter = this.value;
+
+      // Clear the storage type dropdown
+      const storageTypeDropdown = document.getElementById('storageTypeDropdown');
+      storageTypeDropdown.innerHTML = '<option value="">Select a Storage Type</option>'; // Reset the dropdown
+
+      // Get records from Grist
+      grist.onRecords(function(records) {
+        // Filter records by selected vCenter
+        const filteredRecords = records.filter(record => record.vCenter === selectedVCenter);
+
+        // Extract distinct storage_type values from the filtered records
+        const storageTypeValues = filteredRecords.map(record => record.Storage_Type);
+
+        // Use Set to get distinct storage_type values
+        const distinctStorageTypes = [...new Set(storageTypeValues)];
+
+        // Log distinct storage_type values to the console
+        console.log(distinctStorageTypes);
+
+        // Populate the storage type dropdown
+        distinctStorageTypes.forEach(storageType => {
+          const option = document.createElement('option');
+          option.value = storageType; // Set the option value
+          option.textContent = String(storageType); // Set the option text (as a string)
+          storageTypeDropdown.appendChild(option); // Append the option to the dropdown
+        });
+      });
+    });
+  </script>
+</body>
+</html>
