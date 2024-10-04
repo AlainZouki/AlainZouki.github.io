@@ -38,7 +38,7 @@
 
         // Populate the Map with distinct Tier values
         filteredRecords.forEach(record => {
-          const tierValue = record.Tier;
+          const tierValue = record.tier;
           if (tierValue) {
             tierMap.set(tierValue, true); // Use tierValue as the key
           }
