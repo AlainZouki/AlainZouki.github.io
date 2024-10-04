@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Distinct vCenters</title>
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  </head>
+  <body>
+    <pre id="readout">Waiting for data...</pre>
+    <script>
+      // Wait for the Grist Plugin API to be ready
+      grist.ready();
+
+      // Listen for records from the Grist table
+      grist.onRecords(function(records) {
+        // Extract vCenter values from the records
+        const vCenterValues = records.map(record => record.vCenter);
+
+        // Use Set to get distinct vCenter values
+        const distinctVCenters = [...new Set(vCenterValues)];
+
+        // Log distinct vCenter values to the console
+        console.log(distinctVCenters);
+
+        // Update the HTML to display distinct vCenters
+        document.getElementById('readout').innerHTML = JSON.stringify(distinctVCenters, null, 2);
+      });
+    </script>
+  </body>
+</html>
