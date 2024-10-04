@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>vCenter Dropdowns</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>Select vCenter Values</h1>
+
+  <!-- Dropdown for vCenter selection -->
+  <label for="vCenterSelect">vCenter:</label>
+  <select id="vCenterSelect">
+    <!-- Options will be dynamically populated -->
+  </select>
+  
+  <br><br>
+
+  <!-- Dropdowns for distinct facilities, tier, and storage type -->
+  <label for="facilitySelect">Facility:</label>
+  <select id="facilitySelect">
+    <!-- Options will be dynamically populated -->
+  </select>
+
+  <br><br>
+
+  <label for="tierSelect">Tier:</label>
+  <select id="tierSelect">
+    <!-- Options will be dynamically populated -->
+  </select>
+
+  <br><br>
+
+  <label for="storageTypeSelect">Storage Type:</label>
+  <select id="storageTypeSelect">
+    <!-- Options will be dynamically populated -->
+  </select>
+
+  <br><br>
+
+  <div id="errorMessage"></div>
+
+  <script>
+    // This function clears the dropdown options
+    function clearDropdown(dropdown) {
+      dropdown.innerHTML = '';
+    }
+
+    // Populate dropdown options dynamically
+    function populateDropdown(dropdown, values) {
+      clearDropdown(dropdown);
+      values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.text = value;
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Grist Plugin API ready
+    grist.ready();
+
+    // Listen for record updates from Grist
+    grist.onRecord(function(record) {
+      // Get distinct facilities, tier, and storage type values where vCenter = selected vCenter
+      const selectedVCenter = record.vCenter;
+
+      // Assuming `record.facilities`, `record.tier`, `record.storageType` contain the corresponding data
+      const distinctFacilities = [...new Set(record.facilities.filter(fac => fac.vCenter === selectedVCenter).map(fac => fac.facility))];
+      const distinctTiers = [...new Set(record.tier.filter(t => t.vCenter === selectedVCenter).map(t => t.tier))];
+      const distinctStorageTypes = [...new Set(record.storageType.filter(st => st.vCenter === selectedVCenter).map(st => st.storageType))];
+
+      // Populate the dropdowns
+      const facilityDropdown = document.getElementById('facilitySelect');
+      const tierDropdown = document.getElementById('tierSelect');
+      const storageTypeDropdown = document.getElementById('storageTypeSelect');
+
+      // Populate each dropdown with distinct values
+      populateDropdown(facilityDropdown, distinctFacilities);
+      populateDropdown(tierDropdown, distinctTiers);
+      populateDropdown(storageTypeDropdown, distinctStorageTypes);
+    });
+  </script>
+</body>
+</html>
