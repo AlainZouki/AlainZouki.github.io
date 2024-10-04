@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Distinct vCenters and Tiers</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>Select a vCenter</h1>
+  <select id="vCenterDropdown">
+    <option value="">Select a vCenter</option>
+  </select>
+
+  <h1>Select Tier</h1>
+  <select id="tierDropdown">
+    <option value="">Select a Tier</option>
+  </select>
+
+  <pre id="readout">Waiting for data...</pre>
+  
+  <script>
+    // Wait for the Grist Plugin API to be ready
+    grist.ready();
+
+    // Listen for records from the Grist table
+    grist.onRecords(function(records) {
+      // Extract vCenter values from the records
+      const vCenterValues = records.map(record => record.vCenter);
+
+      // Use Set to get distinct vCenter values
+      const distinctVCenters = [...new Set(vCenterValues)];
+
+      // Log distinct vCenter values to the console
+      console.log(distinctVCenters);
+
+      // Populate the vCenter dropdown
+      const vCenterDropdown = document.getElementById('vCenterDropdown');
+      vCenterDropdown.innerHTML = '<option value="">Select a vCenter</option>'; // Reset the dropdown
+
+      // Add each distinct vCenter value as an option in the dropdown
+      distinctVCenters.forEach(vCenter => {
+        const option = document.createElement('option');
+        option.value = vCenter; // Set the option value
+        option.textContent = String(vCenter); // Set the option text (as a string)
+        vCenterDropdown.appendChild(option); // Append the option to the dropdown
+      });
+
+      // Extract distinct Tier values from the records
+      const tierValues = records.map(record => record.tier);
+
+      // Use Set to get distinct Tier values
+      const distinctTiers = [...new Set(tierValues)];
+
+      // Log distinct Tier values to the console
+      console.log(distinctTiers);
+
+      // Populate the tier dropdown
+      const tierDropdown = document.getElementById('tierDropdown');
+      tierDropdown.innerHTML = '<option value="">Select a Tier</option>'; // Reset the dropdown
+
+      // Add each distinct Tier value as an option in the dropdown
+      distinctTiers.forEach(tier => {
+        const option = document.createElement('option');
+        option.value = tier; // Set the option value
+        option.textContent = String(tier); // Set the option text (as a string)
+        tierDropdown.appendChild(option); // Append the option to the dropdown
+      });
+    });
+  </script>
+</body>
+</html>
