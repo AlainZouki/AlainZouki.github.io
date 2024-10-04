@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Display vCenter and Tiers</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>Selected vCenter and Tiers</h1>
+
+  <!-- Div to display the selected vCenter value -->
+  <div id="vCenterValue" style="font-size: 24px; font-weight: bold;">
+    Selected vCenter: None
+  </div>
+
+  <!-- Div to display distinct Tiers -->
+  <div id="tiers" style="font-size: 18px; margin-top: 20px;">
+    Distinct Tiers: None
+  </div>
+
+  <script>
+    // Grist Plugin API ready
+    grist.ready();
+
+    // Listen for record changes
+    grist.onRecord(function(record) {
+      // Assuming vCenter is the column name
+      const selectedVCenter = record.vCenter || "None"; // Get the vCenter value, default to "None"
+      document.getElementById('vCenterValue').innerText = 'Selected vCenter: ' + selectedVCenter;
+
+      // Fetch all records from the Grist table
+      grist.getRecords().then(function(records) {
+        // Filter records based on selected vCenter
+        const filteredRecords = records.filter(r => r.vCenter === selectedVCenter);
+
+        // Create a Map to store distinct Tiers
+        const tierMap = new Map();
+
+        // Populate the Map with distinct Tier values
+        filteredRecords.forEach(record => {
+          const tierValue = record.Tier;
+          if (tierValue) {
+            tierMap.set(tierValue, true); // Use tierValue as the key
+          }
+        });
+
+        // Convert the keys of the Map to an array for display
+        const distinctTiers = Array.from(tierMap.keys());
+
+        // Update the display with distinct Tiers
+        if (distinctTiers.length > 0) {
+          document.getElementById('tiers').innerText = 'Distinct Tiers: ' + distinctTiers.join(', ');
+        } else {
+          document.getElementById('tiers').innerText = 'Distinct Tiers: None';
+        }
+      }).catch(function(error) {
+        document.getElementById('tiers').innerText = 'Error fetching data from Grist: ' + error.message;
+      });
+    });
+  </script>
+</body>
+</html>
