@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Distinct vCenters</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <h1>Select a vCenter</h1>
+  <select id="vCenterDropdown">
+    <option value="">Select a vCenter</option>
+  </select>
+
+  <pre id="readout">Waiting for data...</pre>
+  
+  <script>
+    // Wait for the Grist Plugin API to be ready
+    grist.ready();
+
+    // Listen for records from the Grist table
+    grist.onRecords(function(records) {
+      // Extract vCenter values from the records
+      const vCenterValues = records.map(record => record.vCenter);
+
+      // Use Set to get distinct vCenter values
+      const distinctVCenters = [...new Set(vCenterValues)];
+
+      // Log distinct vCenter values to the console
+      console.log(distinctVCenters);
+
+      // Update the HTML to display distinct vCenters
+      document.getElementById('readout').innerHTML = JSON.stringify(distinctVCenters, null, 2);
+
+      // Get the dropdown element
+      const dropdown = document.getElementById('vCenterDropdown');
+
+      // Clear existing options (if any)
+      dropdown.innerHTML = '<option value="">Select a vCenter</option>'; // Reset the dropdown
+
+      // Add each distinct vCenter value as an option in the dropdown
+      distinctVCenters.forEach(vCenter => {
+        const option = document.createElement('option');
+        option.value = vCenter; // Set the option value
+        option.textContent = String(vCenter); // Set the option text (as a string)
+        dropdown.appendChild(option); // Append the option to the dropdown
+      });
+    });
+  </script>
+</body>
+</html>
