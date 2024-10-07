@@ -151,6 +151,21 @@ td {
     <button class="button" id="avgButton">AVG</button>
     <button class="button" id="listingButton">LISTING</button>
   </div>
+  <div class="table-container" id="resultsTableContainer" style="display: none;">
+  <table>
+    <thead>
+      <tr>
+        <th>VM Count</th>
+        <th>SUM Memory GB</th>
+        <th>SUM Used Space GB</th>
+      </tr>
+    </thead>
+    <tbody id="resultsTableBody">
+      <!-- Table rows will be added dynamically -->
+    </tbody>
+  </table>
+</div>
+
 
   <pre id="readout">Waiting for data...</pre>
 
@@ -225,6 +240,41 @@ td {
         vCenterError.style.display = 'none';
       }
     });
+    document.getElementById('sumButton').addEventListener('click', function () {
+  const selectedVCenter = document.getElementById('vCenterDropdown').value;
+  const selectedTiers = [...document.querySelectorAll('input[name="tierRadio"]:checked')].map(checkbox => checkbox.value);
+  const selectedFacilities = [...document.querySelectorAll('input[name="facilityRadio"]:checked')].map(checkbox => checkbox.value);
+  const selectedStorageTypes = [...document.querySelectorAll('input[name="storageTypeRadio"]:checked')].map(checkbox => checkbox.value);
+
+  // Filter records based on selected values
+  const filteredRecords = records.filter(record =>
+    record.vCenter === selectedVCenter &&
+    selectedTiers.includes(record.tier) &&
+    selectedFacilities.includes(record.facility) &&
+    selectedStorageTypes.includes(record.Storage_Type)
+  );
+
+  // Calculate VM Count, SUM Memory GB, and SUM Used Space GB
+  const vmCount = filteredRecords.length;
+  const sumMemoryGB = filteredRecords.reduce((sum, record) => sum + record.memoryGB, 0);
+  const sumUsedSpaceGB = filteredRecords.reduce((sum, record) => sum + record.usedSpaceGB, 0);
+
+  // Populate table with results
+  const resultsTableBody = document.getElementById('resultsTableBody');
+  resultsTableBody.innerHTML = ''; // Clear previous results
+  const row = `
+    <tr>
+      <td>${vmCount}</td>
+      <td>${sumMemoryGB.toFixed(2)}</td>
+      <td>${sumUsedSpaceGB.toFixed(2)}</td>
+    </tr>
+  `;
+  resultsTableBody.innerHTML = row;
+
+  // Show the results table
+  document.getElementById('resultsTableContainer').style.display = 'block';
+});
+
   </script>
 </body>
 </html>
