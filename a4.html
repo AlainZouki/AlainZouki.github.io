@@ -1,1 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Selection</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
 
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .dropdown-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    select {
+      width: 200px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    select:focus {
+      border-color: #0056b3;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      display: none;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background: #e2e2e2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .radio-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .radio-item {
+      display: inline-block;
+      margin: 5px 10px;
+    }
+
+    .results-table {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select Your Data</h1>
+
+  <div id="formContainer">
+    <div class="dropdown-container">
+      <label for="vCenterDropdown"><strong>Select vCenter </strong></label>
+      <select id="vCenterDropdown" required>
+        <option value="">Select a vCenter</option>
+      </select>
+      <span class="error" id="vCenterError">Please select a vCenter.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Tier</strong></label>
+      <select id="tierDropdown">
+        <option value="">Select a Tier</option>
+      </select>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Facility</strong></label>
+      <select id="facilityDropdown">
+        <option value="">Select a Facility</option>
+      </select>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Storage Type</strong></label>
+      <select id="storageTypeDropdown">
+        <option value="">Select a Storage Type</option>
+      </select>
+    </div>
+
+    <div class="button-container">
+      <button class="button" id="sumButton">SUM</button>
+      <button class="button" id="avgButton">AVG</button>
+      <button class="button" id="listingButton">LISTING</button>
+    </div>
+
+    <pre id="readout">Waiting for data...</pre>
+  </div>
+
+  <div class="results-table" id="resultsTable">
+    <h2>Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th>SUM Memory GB</th>
+          <th>SUM Used Space GB</th>
+          <th>SUM Free Space GB</th>
+          <th>SUM Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backButton">Back</button>
+  </div>
+<script>
+  // Wait for the Grist Plugin API to be ready
+  grist.ready();
+
+  // Store records from the Grist table
+  let allRecords = [];
+
+  // Listen for records from the Grist table
+  grist.onRecords(function(records) {
+    allRecords = records; // Store the records for further calculations
+    // Extract distinct vCenter values from the records
+    const vCenterValues = records.map(record => record.vCenter);
+    const distinctVCenters = [...new Set(vCenterValues)];
+
+    // Populate the vCenter dropdown
+    const vCenterDropdown = document.getElementById('vCenterDropdown');
+    vCenterDropdown.innerHTML = '<option value="">Select a vCenter</option>'; // Reset the dropdown
+    distinctVCenters.forEach(vCenter => {
+      const option = document.createElement('option');
+      option.value = vCenter;
+      option.textContent = String(vCenter);
+      vCenterDropdown.appendChild(option);
+    });
+
+    // Function to populate a dropdown with distinct values
+    function populateDropdown(dropdownId, values) {
+      const dropdown = document.getElementById(dropdownId);
+      dropdown.innerHTML = '<option value="">Select an option</option>'; // Reset the dropdown
+
+      values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = String(value);
+        dropdown.appendChild(option);
+      });
+    }
+
+    // Populate the tier dropdown
+    const tierValues = records.map(record => record.tier);
+    const distinctTiers = [...new Set(tierValues)];
+    populateDropdown('tierDropdown', distinctTiers);
+
+    // Populate the facility dropdown
+    const facilityValues = records.map(record => record.facility);
+    const distinctFacilities = [...new Set(facilityValues)];
+    populateDropdown('facilityDropdown', distinctFacilities);
+
+    // Populate the storage type dropdown
+    const storageTypeValues = records.map(record => record.Storage_Type);
+    const distinctStorageTypes = [...new Set(storageTypeValues)];
+    populateDropdown('storageTypeDropdown', distinctStorageTypes);
+  });
+
+  // Validate the selections and handle button clicks
+  document.querySelector('.button-container').addEventListener('click', function(event) {
+    const vCenterDropdown = document.getElementById('vCenterDropdown');
+    const tierDropdown = document.getElementById('tierDropdown');
+    const facilityDropdown = document.getElementById('facilityDropdown');
+    const storageTypeDropdown = document.getElementById('storageTypeDropdown');
+    const vCenterError = document.getElementById('vCenterError');
+    const resultsTable = document.getElementById('resultsTable');
+    const formContainer = document.getElementById('formContainer');
+    const resultsBody = document.getElementById('resultsBody');
+
+    if (event.target.id === 'sumButton') {
+      if (!vCenterDropdown.value) {
+        vCenterError.style.display = 'block';
+        event.preventDefault();
+      } else {
+        vCenterError.style.display = 'none';
+
+        // Filter records based on selections
+        const filteredRecords = allRecords.filter(record => {
+          return record.vCenter === vCenterDropdown.value &&
+                 record.tier === tierDropdown.value &&
+                 record.facility === facilityDropdown.value &&
+                 record.Storage_Type === storageTypeDropdown.value;
+        });
+
+        // Calculate sums and counts
+        const vmCount = filteredRecords.length;
+        const sumMemoryGB = filteredRecords.reduce((sum, record) => sum + (record.memoryGB || 0), 0);
+        const sumUsedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.usedSpaceGB || 0), 0);
+        const sumFreeSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.freeSpaceGB || 0), 0);
+        const sumAllocatedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.allocatedSpaceGB || 0), 0);
+
+        // Create a new row in the results table
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${vCenterDropdown.value}</td>
+          <td>${facilityDropdown.value}</td>
+          <td>${tierDropdown.value}</td>
+          <td>${storageTypeDropdown.value}</td>
+          <td>${vmCount}</td>
+          <td>${sumMemoryGB}</td>
+          <td>${sumUsedSpaceGB}</td>
+          <td>${sumFreeSpaceGB}</td>
+          <td>${sumAllocatedSpaceGB}</td>
+        `;
+        resultsBody.appendChild(newRow);
+
+        // Show the results table
+        formContainer.style.display = 'none';
+        resultsTable.style.display = 'block';
+      }
+    }
+  });
+
+  // Handle the back button click
+  document.getElementById('backButton').addEventListener('click', function() {
+    document.getElementById('resultsTable').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
