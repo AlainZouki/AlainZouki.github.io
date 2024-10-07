@@ -260,11 +260,11 @@
         });
 
         // Calculate sums and counts
-        const vmCount = filteredRecords.length;
-        const sumMemoryGB = filteredRecords.reduce((sum, record) => sum + (record.memoryGB || 0), 0);
-        const sumUsedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.usedSpaceGB || 0), 0);
-        const sumFreeSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.freeSpaceGB || 0), 0);
-        const sumAllocatedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.allocatedSpaceGB || 0), 0);
+        const vmCount = filteredRecords.length + 1;
+        const sumMemoryGB = filteredRecords.reduce((sum, record) => sum + (record.Memory_GB || 0), 0);
+        const sumUsedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.Used_Space_GB || 0), 0);
+        const sumFreeSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.Free_Space_GB || 0), 0);
+        const sumAllocatedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.Allocated_Space_GB || 0), 0);
 
         // Create a new row in the results table
         const newRow = document.createElement('tr');
