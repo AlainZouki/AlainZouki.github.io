@@ -260,7 +260,7 @@
         });
 
         // Calculate sums and counts
-        const vmCount = filteredRecords.length + 1;
+        const vmCount = filteredRecords.length;
         const sumMemoryGB = filteredRecords.reduce((sum, record) => sum + (record.Memory_GB || 0), 0);
         const sumUsedSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.Used_Space_GB || 0), 0);
         const sumFreeSpaceGB = filteredRecords.reduce((sum, record) => sum + (record.Free_Space_GB || 0), 0);
