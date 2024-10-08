@@ -140,6 +140,7 @@
       <select id="facilityDropdown">
         <option value="">Select a Facility</option>
       </select>
+      <span class="error" id="facilityError">Please select a facility.</span>
     </div>
 
     <div class="dropdown-container">
@@ -147,6 +148,7 @@
       <select id="storageTypeDropdown">
         <option value="">Select a Storage Type</option>
       </select>
+      <span class="error" id="typeError">Please select a storage type.</span>
     </div>
 
     <div class="button-container">
@@ -248,8 +250,20 @@
       if (!vCenterDropdown.value) {
         vCenterError.style.display = 'block';
         event.preventDefault();
-      } else {
+      } 
+       if (!facilityDropdown.value) {
+        facilityError.style.display = 'block';
+        event.preventDefault();
+      }
+       if (!storageTypeDropdown.value) {
+        typeError.style.display = 'block';
+        event.preventDefault();
+      }  
+      else {
         vCenterError.style.display = 'none';
+        facilityError.style.display = 'none';
+        typeError.style.display = 'none';
+        
 
         // Filter records based on selections
         const filteredRecords = allRecords.filter(record => {
