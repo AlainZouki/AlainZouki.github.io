@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .button-container {
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #resultsTable, #avgResultsTable {
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Record Summary</h1>
+
+<div id="formContainer">
+    <label for="vCenter">vCenter:</label>
+    <input type="text" id="vCenter" required>
+
+    <label for="facility">Facility:</label>
+    <input type="text" id="facility" required>
+
+    <label for="storageType">Storage Type:</label>
+    <input type="text" id="storageType" required>
+
+    <fieldset>
+        <legend>Tier:</legend>
+        <label><input type="checkbox" name="tier" value="Tier1"> Tier 1</label>
+        <label><input type="checkbox" name="tier" value="Tier2"> Tier 2</label>
+        <label><input type="checkbox" name="tier" value="Tier3"> Tier 3</label>
+    </fieldset>
+
+    <div class="button-container">
+        <button id="sumButton">SUM</button>
+        <button id="avgButton">AVG</button>
+        <button id="listingButton">LISTING</button>
+    </div>
+</div>
+
+<div id="readout"></div>
+
+<table id="resultsTable">
+    <thead>
+        <tr>
+            <th>vCenter</th>
+            <th>Facility</th>
+            <th>Tier</th>
+            <th>Storage Type</th>
+            <th>VM Count</th>
+            <th>Total Memory (GB)</th>
+            <th>Total Used Space (GB)</th>
+            <th>Total Free Space (GB)</th>
+            <th>Total Allocated Space (GB)</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+</table>
+
+<table id="avgResultsTable">
+    <thead>
+        <tr>
+            <th>vCenter</th>
+            <th>Facility</th>
+            <th>Tier</th>
+            <th>Storage Type</th>
+            <th>VM Count</th>
+            <th>Average Memory (GB)</th>
+            <th>Average Used Space (GB)</th>
+            <th>Average Free Space (GB)</th>
+            <th>Average Allocated Space (GB)</th>
+        </tr>
+    </thead>
+    <tbody id="avgResultsBody"></tbody>
+</table>
+
+<script>
+// Sample data
+const allRecords = [
+    {
+        vCenter: 'vCenter1',
+        facility: 'Facility1',
+        Storage_Type: 'Type1',
+        tier: 'Tier1',
+        VM_Count: '3',
+        Memory_GB: '16',
+        Used_Space_GB: '8',
+        Free_Space_GB: '8',
+        Allocated_Space_GB: '16'
+    },
+    {
+        vCenter: 'vCenter1',
+        facility: 'Facility1',
+        Storage_Type: 'Type1',
+        tier: 'Tier2',
+        VM_Count: '5',
+        Memory_GB: '32',
+        Used_Space_GB: '20',
+        Free_Space_GB: '12',
+        Allocated_Space_GB: '32'
+    },
+    // Add more records as necessary
+];
+
+document.querySelector('.button-container').addEventListener('click', function(event) {
+    const vCenter = document.getElementById('vCenter').value;
+    const facility = document.getElementById('facility').value;
+    const storageType = document.getElementById('storageType').value;
+    const tierChecks = document.querySelectorAll('input[name="tier"]:checked');
+
+    const resultsTable = document.getElementById('resultsTable');
+    const avgResultsTable = document.getElementById('avgResultsTable');
+    const resultsBody = document.getElementById('resultsBody');
+    const avgResultsBody = document.getElementById('avgResultsBody');
+    const readout = document.getElementById('readout');
+
+    resultsBody.innerHTML = ''; // Clear previous results
+    avgResultsBody.innerHTML = ''; // Clear previous average results
+
+    if (vCenter && facility && storageType && tierChecks.length > 0) {
+        const buttonId = event.target.id;
+        let filteredRecords;
+
+        if (buttonId === 'sumButton') {
+            filteredRecords = allRecords.filter(record =>
+                record.vCenter === vCenter &&
+                record.facility === facility &&
+                record.Storage_Type === storageType &&
+                Array.from(tierChecks).some(tierCheck => tierCheck.value === record.tier)
+            );
+
+            if (filteredRecords.length > 0) {
+                const sum = filteredRecords.reduce((acc, record) => {
+                    acc.VM_Count += Number(record.VM_Count);
+                    acc.Total_Memory_GB += Number(record.Memory_GB);
+                    acc.Total_Used_Space_GB += Number(record.Used_Space_GB);
+                    acc.Total_Free_Space_GB += Number(record.Free_Space_GB);
+                    acc.Total_Allocated_Space_GB += Number(record.Allocated_Space_GB);
+                    return acc;
+                }, {
+                    VM_Count: 0,
+                    Total_Memory_GB: 0,
+                    Total_Used_Space_GB: 0,
+                    Total_Free_Space_GB: 0,
+                    Total_Allocated_Space_GB: 0
+                });
+
+                resultsBody.innerHTML = `
+                    <tr>
+                      <td>${vCenter}</td>
+                      <td>${facility}</td>
+                      <td>${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}</td>
+                      <td>${storageType}</td>
+                      <td>${sum.VM_Count}</td>
+                      <td>${sum.Total_Memory_GB.toFixed(2)}</td>
+                      <td>${sum.Total_Used_Space_GB.toFixed(2)}</td>
+                      <td>${sum.Total_Free_Space_GB.toFixed(2)}</td>
+                      <td>${sum.Total_Allocated_Space_GB.toFixed(2)}</td>
+                    </tr>
+                `;
+                resultsTable.style.display = 'block';
+                readout.textContent = `Showing SUM results for ${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}`;
+            } else {
+                // If no records found, populate the table with zeros
+                resultsBody.innerHTML = `
+                    <tr>
+                      <td>${vCenter}</td>
+                      <td>${facility}</td>
+                      <td>${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}</td>
+                      <td>${storageType}</td>
+                      <td>0</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                    </tr>
+                `;
+                resultsTable.style.display = 'block';
+                readout.textContent = `No records found for the selected criteria, displaying zeros.`;
+            }
+        } else if (buttonId === 'avgButton') {
+            filteredRecords = allRecords.filter(record =>
+                record.vCenter === vCenter &&
+                record.facility === facility &&
+                record.Storage_Type === storageType &&
+                Array.from(tierChecks).some(tierCheck => tierCheck.value === record.tier)
+            );
+
+            if (filteredRecords.length > 0) {
+                const average = filteredRecords.reduce((acc, record) => {
+                    acc.VM_Count++;
+                    acc.Avg_Memory_GB += Number(record.Memory_GB);
+                    acc.Avg_Used_Space_GB += Number(record.Used_Space_GB);
+                    acc.Avg_Free_Space_GB += Number(record.Free_Space_GB);
+                    acc.Avg_Allocated_Space_GB += Number(record.Allocated_Space_GB);
+                    return acc;
+                }, {
+                    VM_Count: 0,
+                    Avg_Memory_GB: 0,
+                    Avg_Used_Space_GB: 0,
+                    Avg_Free_Space_GB: 0,
+                    Avg_Allocated_Space_GB: 0
+                });
+
+                avgResultsBody.innerHTML = `
+                    <tr>
+                      <td>${vCenter}</td>
+                      <td>${facility}</td>
+                      <td>${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}</td>
+                      <td>${storageType}</td>
+                      <td>${average.VM_Count}</td>
+                      <td>${(average.Avg_Memory_GB / average.VM_Count).toFixed(2)}</td>
+                      <td>${(average.Avg_Used_Space_GB / average.VM_Count).toFixed(2)}</td>
+                      <td>${(average.Avg_Free_Space_GB / average.VM_Count).toFixed(2)}</td>
+                      <td>${(average.Avg_Allocated_Space_GB / average.VM_Count).toFixed(2)}</td>
+                    </tr>
+                `;
+                avgResultsTable.style.display = 'block';
+                readout.textContent = `Showing AVG results for ${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}`;
+            } else {
+                // If no records found, populate the table with zeros
+                avgResultsBody.innerHTML = `
+                    <tr>
+                      <td>${vCenter}</td>
+                      <td>${facility}</td>
+                      <td>${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}</td>
+                      <td>${storageType}</td>
+                      <td>0</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                      <td>0.00</td>
+                    </tr>
+                `;
+                avgResultsTable.style.display = 'block';
+                readout.textContent = `No records found for the selected criteria, displaying zeros.`;
+            }
+        } else if (buttonId === 'listingButton') {
+            // Listing button logic can be added here if needed
+            readout.textContent = `Displaying listing results for ${Array.from(tierChecks).map(tierCheck => tierCheck.value).join(', ')}`;
+            // Populate listingResultsBody with relevant data
+            // Hide the form container
+            document.getElementById('formContainer').style.display = 'none';
+        }
+
+        // Hide the form container
+        document.getElementById('formContainer').style.display = 'none';
+    } else {
+        readout.textContent = 'Please fill all fields and select at least one tier.';
+    }
+});
+</script>
+
+</body>
+</html>
