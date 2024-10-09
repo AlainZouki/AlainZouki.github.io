@@ -327,7 +327,30 @@
     // Clear previous results
     resultsBody.innerHTML = '';
     listBody.innerHTML = '';
-    
+     
+    if(isList){
+     resultsTable.style.display = 'none';
+      listBody.innerHTML = '';
+      filteredRecords.forEach(record => {
+       const row = listBody.insertRow();
+       row.insertCell(0).innerText = selectedVCenter;
+       row.insertCell(1).innerText = selectedFacility;
+       row.insertCell(2).innerText = record.tier
+       row.insertCell(3).innerText = selectedStorageType;
+       row.insertCell(4).innerText = record.Volume;
+       row.insertCell(5).innerText = record.vm_name;
+       row.insertCell(6).innerText = record.Power_State;
+       row.insertCell(7).innerText = record.Memory_GB;
+       row.insertCell(8).innerText = record.Allocated_Space_GB;
+       row.insertCell(9).innerText = record.Used_Space_GB;
+       row.insertCell(10).innerText = record.Free_Space_GB;
+        
+    listTable.style.display = 'block'; // Show results table
+    formContainer.style.display = 'none'; // Hide form container
+      
+    });
+      
+    }
   
 
     let totalVMCount = filteredRecords.length;
@@ -377,29 +400,7 @@
     resultsTable.style.display = 'block'; // Show results table
     formContainer.style.display = 'none'; // Hide form container
   });
-   if(isList){
-     resultsTable.style.display = 'none';
-      listBody.innerHTML = '';
-      filteredRecords.forEach(record => {
-       const row = listBody.insertRow();
-       row.insertCell(0).innerText = selectedVCenter;
-       row.insertCell(1).innerText = selectedFacility;
-       row.insertCell(2).innerText = record.tier
-       row.insertCell(3).innerText = selectedStorageType;
-       row.insertCell(4).innerText = record.Volume;
-       row.insertCell(5).innerText = record.vm_name;
-       row.insertCell(6).innerText = record.Power_State;
-       row.insertCell(7).innerText = record.Memory_GB;
-       row.insertCell(8).innerText = record.Allocated_Space_GB;
-       row.insertCell(9).innerText = record.Used_Space_GB;
-       row.insertCell(10).innerText = record.Free_Space_GB;
-        
-    listTable.style.display = 'block'; // Show results table
-    formContainer.style.display = 'none'; // Hide form container
-      
-    });
-      
-    }
+  
 
   document.getElementById('backButton').addEventListener('click', function() {
     document.getElementById('resultsTable').style.display = 'none'; // Hide results table
