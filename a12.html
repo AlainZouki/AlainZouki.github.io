@@ -340,13 +340,13 @@
             <td>${record.facility}</td>
             <td>${record.tier}</td>
             <td>${record.Storage_Type}</td>
-            <td>${record.volume}</td>
-            <td>${record.vm}</td>
-            <td>${record.power_state}</td>
-            <td>${record.memory_GB}</td>
-            <td>${record.allocated_space_GB}</td>
-            <td>${record.used_space_GB}</td>
-            <td>${record.free_space_GB}</td>
+            <td>${record.Volume}</td>
+            <td>${record.vm_name}</td>
+            <td>${record.Power_State}</td>
+            <td>${record.Memory_GB}</td>
+            <td>${record.Allocated_Space_GB}</td>
+            <td>${record.Used_Space_GB}</td>
+            <td>${record.Free_Space_GB}</td>
           `;
           listBody.appendChild(row);
         });
@@ -355,6 +355,7 @@
         if (filteredRecords.length > 0) {
           document.getElementById('listTable').style.display = 'block';
           document.getElementById('resultsTable').style.display = 'none';
+          document.getElementById('formContainer').style.display = 'none';
         } else {
           alert('No records found for the selected filters.');
         }
@@ -365,10 +366,10 @@
         let sumAllocatedSpace = 0;
 
         filteredRecords.forEach(record => {
-          sumMemory += Number(record.memory_GB) || 0;
-          sumUsedSpace += Number(record.used_space_GB) || 0;
-          sumFreeSpace += Number(record.free_space_GB) || 0;
-          sumAllocatedSpace += Number(record.allocated_space_GB) || 0;
+          sumMemory += Number(record.Memory_GB) || 0;
+          sumUsedSpace += Number(record.Used_Space_GB) || 0;
+          sumFreeSpace += Number(record.Free_Space_GB) || 0;
+          sumAllocatedSpace += Number(record.Allocated_Space_GB) || 0;
         });
 
         // Populate the results table with sums
