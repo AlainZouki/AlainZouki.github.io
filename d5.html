@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Selection</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .dropdown-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    select {
+      width: 200px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    select:focus {
+      border-color: #0056b3;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      display: none;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background: #e2e2e2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .radio-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .radio-item {
+      display: inline-block;
+      margin: 5px 10px;
+    }
+
+    .results-table {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select Your Data</h1>
+
+  <div id="formContainer">
+    <div class="dropdown-container">
+      <label for="vCenterDropdown"><strong>Select vCenter </strong></label>
+      <select id="vCenterDropdown" required>
+        <option value="">Select a vCenter</option>
+      </select>
+      <span class="error" id="vCenterError">Please select a vCenter.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Facility</strong></label>
+      <select id="facilityDropdown">
+        <option value="">Select a Facility</option>
+      </select>
+      <span class="error" id="facilityError">Please select a facility.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Storage Type</strong></label>
+      <select id="storageTypeDropdown">
+        <option value="">Select a Storage Type</option>
+      </select>
+      <span class="error" id="typeError">Please select a storage type.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Tier(s)</strong></label>
+      <div class="radio-container" id="tierRadioContainer">
+        <!-- Radio boxes for tier selection will be added here -->
+      </div>
+      <span class="error" id="tierError">Please select at least one tier.</span>
+    </div>
+
+    <div class="button-container">
+      <button class="button" id="sumButton">SUM</button>
+      <button class="button" id="avgButton">AVG</button>
+      <button class="button" id="listingButton">LISTING</button>
+    </div>
+
+    <pre id="readout">Waiting for data...</pre>
+  </div>
+
+  <div class="results-table" id="resultsTable">
+    <h2>SUM Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier(s)</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th>SUM Memory GB</th>
+          <th>SUM Used Space GB</th>
+          <th>SUM Free Space GB</th>
+          <th>SUM Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backButton">Back</button>
+  </div>
+
+  <div class="results-table" id="avgResultsTable">
+    <h2>Average Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier(s)</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th>AVG Memory GB</th>
+          <th>AVG Used Space GB</th>
+          <th>AVG Free Space GB</th>
+          <th>AVG Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="avgResultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backAvgButton">Back</button>
+  </div>
+
+  <div class="results-table" id="listingResultsTable">
+    <h2>Listing Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier</th>
+          <th>Storage Type</th>
+          <th>Volume</th>
+          <th>VM</th>
+          <th>State</th>
+          <th>Memory GB</th>
+          <th>Used Space GB</th>
+          <th>Free Space GB</th>
+          <th>Allocated Space GB</th>
+          <th>RF</th>
+        </tr>
+      </thead>
+      <tbody id="listingResultsBody">
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+    <!-- Pagination Controls -->
+    <div id="pagination" style="margin-top: 10px;">
+      <button id="prevPage" disabled>Previous</button>
+      <span id="pageInfo"></span>
+      <button id="nextPage" disabled>Next</button>
+    </div>
+
+    <!-- Back Button -->
+    <button id="listBackButton">Back</button>
+  </div>
+
+  <script>
+    grist.ready();
+
+    let allRecords = [];
+
+    grist.onRecords(function(records) {
+      allRecords = records;
+
+      const vCenterValues = records.map(record => record.vCenter);
+      const distinctVCenters = [...new Set(vCenterValues)];
+
+      const vCenterDropdown = document.getElementById('vCenterDropdown');
+      vCenterDropdown.innerHTML = '<option value="">Select a vCenter</option>';
+      distinctVCenters.forEach(vCenter => {
+        const option = document.createElement('option');
+        option.value = vCenter;
+        option.textContent = String(vCenter);
+        vCenterDropdown.appendChild(option);
+      });
+
+      function populateDropdown(dropdownId, values) {
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.innerHTML = '<option value="">Select an option</option>';
+
+        values.forEach(value => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = String(value);
+          dropdown.appendChild(option);
+        });
+      }
+
+      const facilityValues = records.map(record => record.facility);
+      const distinctFacilities = [...new Set(facilityValues)];
+      populateDropdown('facilityDropdown', distinctFacilities);
+
+      const storageTypeValues = records.map(record => record.Storage_Type);
+      const distinctStorageTypes = [...new Set(storageTypeValues)];
+      populateDropdown('storageTypeDropdown', distinctStorageTypes);
+
+      const tierValues = records.map(record => record.tier);
+      const distinctTiers = [...new Set(tierValues)];
+      const tierRadioContainer = document.getElementById('tierRadioContainer');
+      tierRadioContainer.innerHTML = '';
+
+      distinctTiers.forEach(tier => {
+        const radioItem = document.createElement('div');
+        radioItem.className = 'radio-item';
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'tier';
+        input.value = tier;
+        input.id = tier;
+
+        const label = document.createElement('label');
+        label.htmlFor = tier;
+        label.textContent = tier;
+
+        radioItem.appendChild(input);
+        radioItem.appendChild(label);
+        tierRadioContainer.appendChild(radioItem);
+      });
+    });
+
+    function validateSelection() {
+      const vCenterSelected = document.getElementById('vCenterDropdown').value;
+      const facilitySelected = document.getElementById('facilityDropdown').value;
+      const storageTypeSelected = document.getElementById('storageTypeDropdown').value;
+      const tierSelected = document.querySelector('input[name="tier"]:checked');
+
+      let isValid = true;
+
+      document.getElementById('vCenterError').style.display = vCenterSelected ? 'none' : 'inline';
+      document.getElementById('facilityError').style.display = facilitySelected ? 'none' : 'inline';
+      document.getElementById('typeError').style.display = storageTypeSelected ? 'none' : 'inline';
+      document.getElementById('tierError').style.display = tierSelected ? 'none' : 'inline';
+
+      if (!vCenterSelected || !facilitySelected || !storageTypeSelected || !tierSelected) {
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    function getSelectedTiers() {
+      return Array.from(document.querySelectorAll('input[name="tier"]:checked')).map(input => input.value);
+    }
+
+    async function performCalculation(type) {
+      if (!validateSelection()) {
+        return;
+      }
+
+      const vCenter = document.getElementById('vCenterDropdown').value;
+      const facility = document.getElementById('facilityDropdown').value;
+      const storageType = document.getElementById('storageTypeDropdown').value;
+      const selectedTiers = getSelectedTiers();
+
+      const filteredRecords = allRecords.filter(record => 
+        record.vCenter === vCenter &&
+        record.facility === facility &&
+        record.Storage_Type === storageType &&
+        selectedTiers.includes(record.tier)
+      );
+
+      // Handle SUM calculation
+      if (type === 'sum') {
+        const sumResults = filteredRecords.reduce((acc, record) => {
+          acc.vmCount++;
+          acc.memoryGB += record.Memory_GB;
+          acc.usedSpaceGB += record.Used_Space_GB;
+          acc.freeSpaceGB += record.Free_Space_GB;
+          acc.allocatedSpaceGB += record.Allocated_Space_GB;
+          return acc;
+        }, { vmCount: 0, memoryGB: 0, usedSpaceGB: 0, freeSpaceGB: 0, allocatedSpaceGB: 0 });
+
+        const resultsBody = document.getElementById('resultsBody');
+        resultsBody.innerHTML = '';
+        const row = resultsBody.insertRow();
+        row.insertCell(0).textContent = vCenter;
+        row.insertCell(1).textContent = facility;
+        row.insertCell(2).textContent = selectedTiers.join(', ');
+        row.insertCell(3).textContent = storageType;
+        row.insertCell(4).textContent = sumResults.vmCount;
+        row.insertCell(5).textContent = sumResults.memoryGB;
+        row.insertCell(6).textContent = sumResults.usedSpaceGB;
+        row.insertCell(7).textContent = sumResults.freeSpaceGB;
+        row.insertCell(8).textContent = sumResults.allocatedSpaceGB;
+
+        document.getElementById('resultsTable').style.display = 'block';
+      }
+
+      // Handle AVG calculation
+      else if (type === 'avg') {
+        const avgResults = filteredRecords.reduce((acc, record) => {
+          acc.vmCount++;
+          acc.memoryGB += record.Memory_GB;
+          acc.usedSpaceGB += record.Used_Space_GB;
+          acc.freeSpaceGB += record.Free_Space_GB;
+          acc.allocatedSpaceGB += record.Allocated_Space_GB;
+          return acc;
+        }, { vmCount: 0, memoryGB: 0, usedSpaceGB: 0, freeSpaceGB: 0, allocatedSpaceGB: 0 });
+
+        const avgBody = document.getElementById('avgResultsBody');
+        avgBody.innerHTML = '';
+        const row = avgBody.insertRow();
+        row.insertCell(0).textContent = vCenter;
+        row.insertCell(1).textContent = facility;
+        row.insertCell(2).textContent = selectedTiers.join(', ');
+        row.insertCell(3).textContent = storageType;
+        row.insertCell(4).textContent = avgResults.vmCount;
+        row.insertCell(5).textContent = (avgResults.memoryGB / avgResults.vmCount).toFixed(2);
+        row.insertCell(6).textContent = (avgResults.usedSpaceGB / avgResults.vmCount).toFixed(2);
+        row.insertCell(7).textContent = (avgResults.freeSpaceGB / avgResults.vmCount).toFixed(2);
+        row.insertCell(8).textContent = (avgResults.allocatedSpaceGB / avgResults.vmCount).toFixed(2);
+
+        document.getElementById('avgResultsTable').style.display = 'block';
+      }
+
+      // Handle Listing
+      else if (type === 'listing') {
+        const listingBody = document.getElementById('listingResultsBody');
+        listingBody.innerHTML = '';
+
+        filteredRecords.forEach(record => {
+          const row = listingBody.insertRow();
+          row.insertCell(0).textContent = record.vCenter;
+          row.insertCell(1).textContent = record.facility;
+          row.insertCell(2).textContent = record.tier;
+          row.insertCell(3).textContent = record.Storage_Type;
+          row.insertCell(4).textContent = record.volume;
+          row.insertCell(5).textContent = record.vm;
+          row.insertCell(6).textContent = record.state;
+          row.insertCell(7).textContent = record.Memory_GB;
+          row.insertCell(8).textContent = record.Used_Space_GB;
+          row.insertCell(9).textContent = record.Free_Space_GB;
+          row.insertCell(10).textContent = record.Allocated_Space_GB;
+          row.insertCell(11).textContent = record.rf;
+        });
+
+        document.getElementById('listingResultsTable').style.display = 'block';
+      }
+    }
+
+    document.getElementById('sumButton').onclick = () => performCalculation('sum');
+    document.getElementById('avgButton').onclick = () => performCalculation('avg');
+    document.getElementById('listingButton').onclick = () => performCalculation('listing');
+
+    document.getElementById('backButton').onclick = () => {
+      document.getElementById('resultsTable').style.display = 'none';
+    };
+
+    document.getElementById('backAvgButton').onclick = () => {
+      document.getElementById('avgResultsTable').style.display = 'none';
+    };
+
+    document.getElementById('listBackButton').onclick = () => {
+      document.getElementById('listingResultsTable').style.display = 'none';
+    };
+
+    // Pagination functionality
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function updatePagination() {
+      const totalItems = document.querySelectorAll('#listingResultsBody tr').length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+      const rows = document.querySelectorAll('#listingResultsBody tr');
+      rows.forEach((row, index) => {
+        row.style.display = (index >= (currentPage - 1) * itemsPerPage && index < currentPage * itemsPerPage) ? '' : 'none';
+      });
+
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage === totalPages;
+      document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+    }
+
+    document.getElementById('prevPage').onclick = () => {
+      currentPage--;
+      updatePagination();
+    };
+
+    document.getElementById('nextPage').onclick = () => {
+      currentPage++;
+      updatePagination();
+    };
+
+    document.getElementById('listingButton').onclick = () => {
+      performCalculation('listing');
+      currentPage = 1; // Reset page to 1 on new listing
+      updatePagination();
+    };
+  </script>
+</body>
+</html>
