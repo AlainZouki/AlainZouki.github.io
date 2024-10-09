@@ -377,6 +377,7 @@
     formContainer.style.display = 'none'; // Hide form container
   });
    if(isList){
+     resultsTable.style.display = 'none';
       listBody.innerHTML = '';
       filteredRecords.forEach(record => {
        const row = listBody.insertRow();
@@ -391,7 +392,7 @@
        row.insertCell(8).innerText = record.Allocated_Space_GB;
        row.insertCell(9).innerText = record.Used_Space_GB;
        row.insertCell(10).innerText = record.Free_Space_GB;
-   resultsTable.style.display = 'none';
+        
     listTable.style.display = 'block'; // Show results table
     formContainer.style.display = 'none'; // Hide form container
       
