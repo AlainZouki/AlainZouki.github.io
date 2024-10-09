@@ -357,14 +357,26 @@
       row.insertCell(6).innerText = (totalUsedSpace / totalVMCount).toFixed(2);
       row.insertCell(7).innerText = (totalFreeSpace / totalVMCount).toFixed(2);
       row.insertCell(8).innerText = (totalAllocatedSpace / totalVMCount).toFixed(2);
-    } else if(isAvg && totalVMCount == 0){
+    } else{
       // If no records, show empty for AVG
       row.insertCell(5).innerText = '-';
       row.insertCell(6).innerText = '-';
       row.insertCell(7).innerText = '-';
       row.insertCell(8).innerText = '-';
     }
-    else if(isList){
+  
+
+    // Change column headers to indicate AVG or SUM
+    document.getElementById('sumOrAvgMemory').innerText = isAvg ? 'AVG Memory GB' : 'SUM Memory GB';
+    document.getElementById('sumOrAvgUsedSpace').innerText = isAvg ? 'AVG Used Space GB' : 'SUM Used Space GB';
+    document.getElementById('sumOrAvgFreeSpace').innerText = isAvg ? 'AVG Free Space GB' : 'SUM Free Space GB';
+    document.getElementById('sumOrAvgAllocatedSpace').innerText = isAvg ? 'AVG Allocated Space GB' : 'SUM Allocated Space GB';
+
+    listTable.style.display = 'none';
+    resultsTable.style.display = 'block'; // Show results table
+    formContainer.style.display = 'none'; // Hide form container
+  });
+   if(isList){
       listBody.innerHTML = '';
       filteredRecords.forEach(record => {
        const row = listBody.insertRow();
@@ -379,24 +391,13 @@
        row.insertCell(8).innerText = record.Allocated_Space_GB;
        row.insertCell(9).innerText = record.Used_Space_GB;
        row.insertCell(10).innerText = record.Free_Space_GB;
-  
+   resultsTable.style.display = 'none';
     listTable.style.display = 'block'; // Show results table
     formContainer.style.display = 'none'; // Hide form container
       
     });
       
     }
-
-    // Change column headers to indicate AVG or SUM
-    document.getElementById('sumOrAvgMemory').innerText = isAvg ? 'AVG Memory GB' : 'SUM Memory GB';
-    document.getElementById('sumOrAvgUsedSpace').innerText = isAvg ? 'AVG Used Space GB' : 'SUM Used Space GB';
-    document.getElementById('sumOrAvgFreeSpace').innerText = isAvg ? 'AVG Free Space GB' : 'SUM Free Space GB';
-    document.getElementById('sumOrAvgAllocatedSpace').innerText = isAvg ? 'AVG Allocated Space GB' : 'SUM Allocated Space GB';
-
-    listTable.style.display = 'none';
-    resultsTable.style.display = 'block'; // Show results table
-    formContainer.style.display = 'none'; // Hide form container
-  });
 
   document.getElementById('backButton').addEventListener('click', function() {
     document.getElementById('resultsTable').style.display = 'none'; // Hide results table
