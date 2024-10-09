@@ -328,6 +328,7 @@
     listBody.innerHTML = '';
 
     if(isList){
+      listBody.innerHTML = '';
       filteredRecords.forEach(record => {
        const row = listBody.insertRow();
        row.insertCell(0).innerText = selectedVCenter;
