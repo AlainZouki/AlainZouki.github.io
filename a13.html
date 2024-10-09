@@ -401,22 +401,27 @@
         });
         document.getElementById('listTable').style.display = 'block';
          document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('resultsTable').style.display = 'none';
+        
       }
 
       resultsTable.style.display = 'block';
       document.getElementById('formContainer').style.display = 'none';
+      document.getElementById('listTable').style.display = 'none';
     }
 
     // Back button functionality for results table
     document.getElementById('backButton').addEventListener('click', function() {
       document.getElementById('resultsTable').style.display = 'none';
        document.getElementById('formContainer').style.display = 'block';
+       document.getElementById('listTable').style.display = 'none';
     });
 
     // Back button functionality for listing table
     document.getElementById('LbackButton').addEventListener('click', function() {
       document.getElementById('listTable').style.display = 'none';
       document.getElementById('formContainer').style.display = 'block';
+      document.getElementById('resultsTable').style.display = 'none';
     });
 
     document.getElementById('listTable').style.display = 'none'; // Hide listing table by default
