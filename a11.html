@@ -273,8 +273,9 @@
     const typeError = document.getElementById('typeError');
     const tierError = document.getElementById('tierError');
     const resultsTable = document.getElementById('resultsTable');
+    const listTable = document.getElementById('listTable');
     const formContainer = document.getElementById('formContainer');
-    const resultsBody = document.getElementById('resultsBody');
+    const listBody = document.getElementById('listBody');
 
     const selectedTiers = Array.from(tierRadioContainer.querySelectorAll('input[name="tier"]:checked'))
       .map(input => input.value);
