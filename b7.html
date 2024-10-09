@@ -162,7 +162,7 @@
   </div>
 
   <div class="results-table" id="resultsTable">
-    <h2>Results</h2>
+    <h2>SUM Results</h2>
     <table>
       <thead>
         <tr>
@@ -206,7 +206,39 @@
     </table>
     <button class="button" id="backAvgButton">Back</button>
   </div>
+   <div class="results-table" id="listingResultsTable">
+    <h2>Listing Results</h2>
+    <table>
+     <thead>
+      <tr>
+        <th>vCenter</th>
+        <th>Facility</th>
+        <th>Tier</th>
+        <th>Storage Type</th>
+        <th>Volume</th>
+        <th>VM</th>
+        <th>State</th>
+        <th>Memory GB</th>
+        <th>Used Space GB</th>
+        <th>Free Space GB</th>
+        <th>Allocated Space GB</th>
+        <th>RF</th>
+      </tr>
+    </thead>
+       <tbody>
+      <!-- Rows will be dynamically added here -->
+    </tbody>
+  </table>
+<!-- Pagination Controls -->
+  <div id="pagination" style="margin-top: 10px;">
+    <button id="prevPage" disabled>Previous</button>
+    <span id="pageInfo"></span>
+    <button id="nextPage" disabled>Next</button>
+  </div>
 
+  <!-- Back Button -->
+  <button id="listBackButton">Back</button>
+</div>
 <script>
   grist.ready();
 
@@ -371,31 +403,82 @@
           readout.textContent = 'No records found for the selected criteria.';
         }
       } else if (buttonId === 'listingButton') {
-        filteredRecords = allRecords.filter(record =>
-          record.vCenter === vCenter &&
-          record.facility === facility &&
-          record.Storage_Type === storageType &&
-          selectedTiers.includes(record.tier)
-        );
+      // Fetch or filter records based on the selected criteria
+      const filteredRecords = records.filter(record => {
+        return record.vCenter === vCenter && 
+               record.facility === facility && 
+               selectedTiers.includes(record.tier) && 
+               record.storageType === storageType;
+      });
 
-        filteredRecords.forEach(record => {
-          resultsBody.innerHTML += `
-            <tr>
+      // Show the table
+      const resultContainer = document.getElementById('resultContainer');
+      const resultTableBody = document.getElementById('resultTable').querySelector('tbody');
+      resultTableBody.innerHTML = ''; // Clear existing rows
+      resultContainer.style.display = 'block';
+      document.getElementById('formContainer').style.display = 'none';
+
+      if (filteredRecords.length > 0) {
+        // Paginate the results if there are more than 10 records
+        const rowsPerPage = 10;
+        let currentPage = 1;
+        const totalPages = Math.ceil(filteredRecords.length / rowsPerPage);
+
+        // Function to render the table rows for the current page
+        function renderTableRows() {
+          resultTableBody.innerHTML = '';
+          const startIndex = (currentPage - 1) * rowsPerPage;
+          const endIndex = Math.min(startIndex + rowsPerPage, filteredRecords.length);
+          
+          for (let i = startIndex; i < endIndex; i++) {
+            const record = filteredRecords[i];
+            const row = document.createElement('tr');
+            row.innerHTML = `
               <td>${record.vCenter}</td>
               <td>${record.facility}</td>
               <td>${record.tier}</td>
-              <td>${record.Storage_Type}</td>
-              <td>${record.VM_Count}</td>
-              <td>${record.Memory_GB}</td>
-              <td>${record.Used_Space_GB}</td>
-              <td>${record.Free_Space_GB}</td>
-              <td>${record.Allocated_Space_GB}</td>
-            </tr>
-          `;
+              <td>${record.storageType}</td>
+              <td>${record.volume}</td>
+              <td>${record.vm}</td>
+              <td>${record.state}</td>
+              <td>${record.memoryGB}</td>
+              <td>${record.usedSpaceGB}</td>
+              <td>${record.freeSpaceGB}</td>
+              <td>${record.allocatedSpaceGB}</td>
+              <td>${record.rf}</td>
+            `;
+            resultTableBody.appendChild(row);
+          }
+
+          // Update pagination info
+          document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+          document.getElementById('prevPage').disabled = currentPage === 1;
+          document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Render the first page
+        renderTableRows();
+
+        // Handle pagination buttons
+        document.getElementById('prevPage').addEventListener('click', function() {
+          if (currentPage > 1) {
+            currentPage--;
+            renderTableRows();
+          }
         });
-        resultsTable.style.display = 'block';
-        readout.textContent = `Showing listing results for ${selectedTiers.join(', ')}`;
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderTableRows();
+          }
+        });
+
+      } else {
+        // No records found: show only the table headers with no rows
+        resultTableBody.innerHTML = ''; // Just clear the rows, leaving the headers
       }
+    }
 
       // Hide the form container
       document.getElementById('formContainer').style.display = 'none';
@@ -415,6 +498,10 @@
 
   document.getElementById('backAvgButton').addEventListener('click', function() {
     document.getElementById('avgResultsTable').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+  });
+  document.getElementById('listBackButton').addEventListener('click', function() {
+    document.getElementById('listingResultsTable').style.display = 'none';
     document.getElementById('formContainer').style.display = 'block';
   });
   // Hide error messages once a valid selection is made
