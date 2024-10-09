@@ -403,91 +403,92 @@
           readout.textContent = 'No records found for the selected criteria.';
         }
       } else if (buttonId === 'listingButton') {
-      // Fetch or filter records based on the selected criteria
-      const filteredRecords = records.filter(record => {
-        return record.vCenter === vCenter && 
-               record.facility === facility && 
-               selectedTiers.includes(record.tier) && 
-               record.storageType === storageType;
-      });
+  // Fetch or filter records based on the selected criteria
+  const filteredRecords = allRecords.filter(record => {
+    return record.vCenter === vCenter && 
+           record.facility === facility && 
+           selectedTiers.includes(record.tier) && 
+           record.Storage_Type === storageType; // Make sure this matches the property in your records
+  });
 
-      // Show the table
-      //const resultContainer = document.getElementById('resultContainer');
-      //const resultTableBody = document.getElementById('resultTable').querySelector('tbody');
+  // Show the listing results table
+  const listingResultsBody = document.getElementById('listingResultsBody');
+  const listingResultsTable = document.getElementById('listingResultsTable');
+  listingResultsBody.innerHTML = ''; // Clear existing rows
+  listingResultsTable.style.display = 'block';
+  document.getElementById('formContainer').style.display = 'none';
+
+  if (filteredRecords.length > 0) {
+    // Pagination setup
+    const rowsPerPage = 10;
+    let currentPage = 1;
+    const totalPages = Math.ceil(filteredRecords.length / rowsPerPage);
+
+    // Function to render table rows for the current page
+    function renderTableRows() {
       listingResultsBody.innerHTML = ''; // Clear existing rows
-      listingResultsTable.style.display = 'block';
-      document.getElementById('formContainer').style.display = 'none';
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const endIndex = Math.min(startIndex + rowsPerPage, filteredRecords.length);
 
-      if (filteredRecords.length > 0) {
-        // Paginate the results if there are more than 10 records
-        const rowsPerPage = 10;
-        let currentPage = 1;
-        const totalPages = Math.ceil(filteredRecords.length / rowsPerPage);
-
-        // Function to render the table rows for the current page
-        function renderTableRows() {
-          listingResultsBody.innerHTML = '';
-          const startIndex = (currentPage - 1) * rowsPerPage;
-          const endIndex = Math.min(startIndex + rowsPerPage, filteredRecords.length);
-          
-          for (let i = startIndex; i < endIndex; i++) {
-            const record = filteredRecords[i];
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${record.vCenter}</td>
-              <td>${record.facility}</td>
-              <td>${record.tier}</td>
-              <td>${record.Storage_Type}</td>
-              <td>${record.Volume}</td>
-              <td>${record.vm_name}</td>
-              <td>${record.Power_State}</td>
-              <td>${record.Memory_GB}</td>
-              <td>${record.Used_Space_GB}</td>
-              <td>${record.Free_Space_GB}</td>
-              <td>${record.Allocated_Space_GB}</td>
-              <td>${record.RF}</td>
-            `;
-            listingResultsBody.appendChild(row);
-          }
-
-          // Update pagination info
-          document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
-          document.getElementById('prevPage').disabled = currentPage === 1;
-          document.getElementById('nextPage').disabled = currentPage === totalPages;
-        }
-
-        // Render the first page
-        renderTableRows();
-
-        // Handle pagination buttons
-        document.getElementById('prevPage').addEventListener('click', function() {
-          if (currentPage > 1) {
-            currentPage--;
-            renderTableRows();
-          }
-        });
-
-        document.getElementById('nextPage').addEventListener('click', function() {
-          if (currentPage < totalPages) {
-            currentPage++;
-            renderTableRows();
-          }
-        });
-
-      } else {
-        // No records found: show only the table headers with no rows
-       listingResultsBody.innerHTML = ''; // Just clear the rows, leaving the headers
+      for (let i = startIndex; i < endIndex; i++) {
+        const record = filteredRecords[i];
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${record.vCenter}</td>
+          <td>${record.facility}</td>
+          <td>${record.tier}</td>
+          <td>${record.Storage_Type}</td>
+          <td>${record.Volume}</td>
+          <td>${record.vm_name}</td>
+          <td>${record.Power_State}</td>
+          <td>${record.Memory_GB}</td>
+          <td>${record.Used_Space_GB}</td>
+          <td>${record.Free_Space_GB}</td>
+          <td>${record.Allocated_Space_GB}</td>
+          <td>${record.RF}</td>
+        `;
+        listingResultsBody.appendChild(row);
       }
+
+      // Update pagination info
+      document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage === totalPages;
     }
 
-      // Hide the form container
-      document.getElementById('formContainer').style.display = 'none';
-    } else {
-      if (!vCenter) document.getElementById('vCenterError').style.display = 'block';
-      if (!facility) document.getElementById('facilityError').style.display = 'block';
-      if (!storageType) document.getElementById('typeError').style.display = 'block';
-      if (selectedTiers.length === 0) document.getElementById('tierError').style.display = 'block';
-    }
+    // Render the first page
+    renderTableRows();
+
+    // Handle pagination buttons
+    document.getElementById('prevPage').addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTableRows();
+      }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTableRows();
+      }
+    });
+
+  } else {
+    // No records found: show only the table headers with no rows
+    listingResultsBody.innerHTML = '<tr><td colspan="12">No records found.</td></tr>'; // Add a message for no records
+  }
+
+  // Hide the form container
+  document.getElementById('formContainer').style.display = 'none';
+} else {
+  // Error handling
+  if (!vCenter) document.getElementById('vCenterError').style.display = 'block';
+  if (!facility) document.getElementById('facilityError').style.display = 'block';
+  if (!storageType) document.getElementById('typeError').style.display = 'block';
+  if (selectedTiers.length === 0) document.getElementById('tierError').style.display = 'block';
+}
+
   });
 
   // Handle the back buttons
