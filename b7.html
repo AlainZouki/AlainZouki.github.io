@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Selection</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .dropdown-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    select {
+      width: 200px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    select:focus {
+      border-color: #0056b3;
+      outline: none;
+    }
+
+    .error {
+      color: red;
+      display: none;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0 10px;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background: #e2e2e2;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .radio-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .radio-item {
+      display: inline-block;
+      margin: 5px 10px;
+    }
+
+    .results-table {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Select Your Data</h1>
+
+  <div id="formContainer">
+    <div class="dropdown-container">
+      <label for="vCenterDropdown"><strong>Select vCenter </strong></label>
+      <select id="vCenterDropdown" required>
+        <option value="">Select a vCenter</option>
+      </select>
+      <span class="error" id="vCenterError">Please select a vCenter.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Facility</strong></label>
+      <select id="facilityDropdown">
+        <option value="">Select a Facility</option>
+      </select>
+      <span class="error" id="facilityError">Please select a facility.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Storage Type</strong></label>
+      <select id="storageTypeDropdown">
+        <option value="">Select a Storage Type</option>
+      </select>
+      <span class="error" id="typeError">Please select a storage type.</span>
+    </div>
+
+    <div class="dropdown-container">
+      <label><strong>Select Tier(s)</strong></label>
+      <div class="radio-container" id="tierRadioContainer">
+        <!-- Radio boxes for tier selection will be added here -->
+      </div>
+      <span class="error" id="tierError">Please select at least one tier.</span>
+    </div>
+
+    <div class="button-container">
+      <button class="button" id="sumButton">SUM</button>
+      <button class="button" id="avgButton">AVG</button>
+      <button class="button" id="listingButton">LISTING</button>
+    </div>
+
+    <pre id="readout">Waiting for data...</pre>
+  </div>
+
+  <div class="results-table" id="resultsTable">
+    <h2>Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier(s)</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th>SUM Memory GB</th>
+          <th>SUM Used Space GB</th>
+          <th>SUM Free Space GB</th>
+          <th>SUM Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backButton">Back</button>
+  </div>
+
+  <div class="results-table" id="avgResultsTable">
+    <h2>Average Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier(s)</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th>AVG Memory GB</th>
+          <th>AVG Used Space GB</th>
+          <th>AVG Free Space GB</th>
+          <th>AVG Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="avgResultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backAvgButton">Back</button>
+  </div>
+
+<script>
+  grist.ready();
+
+  let allRecords = [];
+
+  grist.onRecords(function(records) {
+    allRecords = records;
+
+    const vCenterValues = records.map(record => record.vCenter);
+    const distinctVCenters = [...new Set(vCenterValues)];
+
+    const vCenterDropdown = document.getElementById('vCenterDropdown');
+    vCenterDropdown.innerHTML = '<option value="">Select a vCenter</option>';
+    distinctVCenters.forEach(vCenter => {
+      const option = document.createElement('option');
+      option.value = vCenter;
+      option.textContent = String(vCenter);
+      vCenterDropdown.appendChild(option);
+    });
+
+    function populateDropdown(dropdownId, values) {
+      const dropdown = document.getElementById(dropdownId);
+      dropdown.innerHTML = '<option value="">Select an option</option>';
+
+      values.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = String(value);
+        dropdown.appendChild(option);
+      });
+    }
+
+    const facilityValues = records.map(record => record.facility);
+    const distinctFacilities = [...new Set(facilityValues)];
+    populateDropdown('facilityDropdown', distinctFacilities);
+
+    const storageTypeValues = records.map(record => record.Storage_Type);
+    const distinctStorageTypes = [...new Set(storageTypeValues)];
+    populateDropdown('storageTypeDropdown', distinctStorageTypes);
+
+    const tierValues = records.map(record => record.tier);
+    const distinctTiers = [...new Set(tierValues)];
+    const tierRadioContainer = document.getElementById('tierRadioContainer');
+    tierRadioContainer.innerHTML = ''; // Reset the radio container
+
+    distinctTiers.forEach(tier => {
+      const label = document.createElement('label');
+      label.className = 'radio-item';
+      label.innerHTML = `
+        <input type="checkbox" name="tier" value="${tier}"> ${tier}
+      `;
+      tierRadioContainer.appendChild(label);
+    });
+  });
+
+  document.querySelector('.button-container').addEventListener('click', function(event) {
+    const vCenterDropdown = document.getElementById('vCenterDropdown');
+    const facilityDropdown = document.getElementById('facilityDropdown');
+    const storageTypeDropdown = document.getElementById('storageTypeDropdown');
+    const tierRadioContainer = document.getElementById('tierRadioContainer');
+    const tierChecks = tierRadioContainer.querySelectorAll('input[name="tier"]:checked');
+
+    const vCenter = vCenterDropdown.value;
+    const facility = facilityDropdown.value;
+    const storageType = storageTypeDropdown.value;
+
+    const selectedTiers = Array.from(tierChecks).map(tierCheck => tierCheck.value);
+    
+    const resultsTable = document.getElementById('resultsTable');
+    const avgResultsTable = document.getElementById('avgResultsTable');
+    const resultsBody = document.getElementById('resultsBody');
+    const avgResultsBody = document.getElementById('avgResultsBody');
+    const readout = document.getElementById('readout');
+
+    resultsBody.innerHTML = ''; // Clear previous results
+    avgResultsBody.innerHTML = ''; // Clear previous average results
+
+    if (vCenter && facility && storageType && selectedTiers.length > 0) {
+      const buttonId = event.target.id;
+      let filteredRecords;
+
+      if (buttonId === 'sumButton') {
+        filteredRecords = allRecords.filter(record =>
+          record.vCenter === vCenter &&
+          record.facility === facility &&
+          record.Storage_Type === storageType &&
+          selectedTiers.includes(record.tier)
+        );
+
+        // Populate the results table with SUM data
+        const summary = filteredRecords.reduce((acc, record) => {
+          acc.VM_Count++;
+          acc.Sum_Memory_GB += Number(record.Memory_GB);
+          acc.Sum_Used_Space_GB += Number(record.Used_Space_GB);
+          acc.Sum_Free_Space_GB += Number(record.Free_Space_GB);
+          acc.Sum_Allocated_Space_GB += Number(record.Allocated_Space_GB);
+          return acc;
+        }, {
+          VM_Count: 0,
+          Sum_Memory_GB: 0,
+          Sum_Used_Space_GB: 0,
+          Sum_Free_Space_GB: 0,
+          Sum_Allocated_Space_GB: 0
+        });
+
+        resultsBody.innerHTML = `
+          <tr>
+            <td>${vCenter}</td>
+            <td>${facility}</td>
+            <td>${selectedTiers.join(', ')}</td>
+            <td>${storageType}</td>
+            <td>${summary.VM_Count}</td>
+            <td>${summary.Sum_Memory_GB.toFixed(2)}</td>
+            <td>${summary.Sum_Used_Space_GB.toFixed(2)}</td>
+            <td>${summary.Sum_Free_Space_GB.toFixed(2)}</td>
+            <td>${summary.Sum_Allocated_Space_GB.toFixed(2)}</td>
+          </tr>
+        `;
+        resultsTable.style.display = 'block';
+        readout.textContent = `Showing SUM results for ${selectedTiers.join(', ')}`;
+      } else if (buttonId === 'avgButton') {
+        filteredRecords = allRecords.filter(record =>
+          record.vCenter === vCenter &&
+          record.facility === facility &&
+          record.Storage_Type === storageType &&
+          selectedTiers.includes(record.tier)
+        );
+
+        // Populate the average results table with AVG data
+        const average = filteredRecords.reduce((acc, record) => {
+          acc.VM_Count++;
+          acc.Avg_Memory_GB += Number(record.Memory_GB);
+          acc.Avg_Used_Space_GB += Number(record.Used_Space_GB);
+          acc.Avg_Free_Space_GB += Number(record.Free_Space_GB);
+          acc.Avg_Allocated_Space_GB += Number(record.Allocated_Space_GB);
+          return acc;
+        }, {
+          VM_Count: 0,
+          Avg_Memory_GB: 0,
+          Avg_Used_Space_GB: 0,
+          Avg_Free_Space_GB: 0,
+          Avg_Allocated_Space_GB: 0
+        });
+
+        if (average.VM_Count > 0) {
+          avgResultsBody.innerHTML = `
+            <tr>
+              <td>${vCenter}</td>
+              <td>${facility}</td>
+              <td>${selectedTiers.join(', ')}</td>
+              <td>${storageType}</td>
+              <td>${average.VM_Count}</td>
+              <td>${(average.Avg_Memory_GB / average.VM_Count).toFixed(2)}</td>
+              <td>${(average.Avg_Used_Space_GB / average.VM_Count).toFixed(2)}</td>
+              <td>${(average.Avg_Free_Space_GB / average.VM_Count).toFixed(2)}</td>
+              <td>${(average.Avg_Allocated_Space_GB / average.VM_Count).toFixed(2)}</td>
+            </tr>
+          `;
+          avgResultsTable.style.display = 'block';
+          readout.textContent = `Showing AVG results for ${selectedTiers.join(', ')}`;
+        } else {
+          readout.textContent = 'No records found for the selected criteria.';
+        }
+      } else if (buttonId === 'listingButton') {
+        filteredRecords = allRecords.filter(record =>
+          record.vCenter === vCenter &&
+          record.facility === facility &&
+          record.Storage_Type === storageType &&
+          selectedTiers.includes(record.tier)
+        );
+
+        filteredRecords.forEach(record => {
+          resultsBody.innerHTML += `
+            <tr>
+              <td>${record.vCenter}</td>
+              <td>${record.facility}</td>
+              <td>${record.tier}</td>
+              <td>${record.Storage_Type}</td>
+              <td>${record.VM_Count}</td>
+              <td>${record.Memory_GB}</td>
+              <td>${record.Used_Space_GB}</td>
+              <td>${record.Free_Space_GB}</td>
+              <td>${record.Allocated_Space_GB}</td>
+            </tr>
+          `;
+        });
+        resultsTable.style.display = 'block';
+        readout.textContent = `Showing listing results for ${selectedTiers.join(', ')}`;
+      }
+
+      // Hide the form container
+      document.getElementById('formContainer').style.display = 'none';
+    } else {
+      if (!vCenter) document.getElementById('vCenterError').style.display = 'block';
+      if (!facility) document.getElementById('facilityError').style.display = 'block';
+      if (!storageType) document.getElementById('typeError').style.display = 'block';
+      if (selectedTiers.length === 0) document.getElementById('tierError').style.display = 'block';
+    }
+  });
+
+  // Handle the back buttons
+  document.getElementById('backButton').addEventListener('click', function() {
+    document.getElementById('resultsTable').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+  });
+
+  document.getElementById('backAvgButton').addEventListener('click', function() {
+    document.getElementById('avgResultsTable').style.display = 'none';
+    document.getElementById('formContainer').style.display = 'block';
+  });
+  // Hide error messages once a valid selection is made
+document.getElementById('vCenterDropdown').addEventListener('change', function() {
+  if (this.value) {
+    document.getElementById('vCenterError').style.display = 'none';
+  }
+});
+
+document.getElementById('facilityDropdown').addEventListener('change', function() {
+  if (this.value) {
+    document.getElementById('facilityError').style.display = 'none';
+  }
+});
+
+document.getElementById('storageTypeDropdown').addEventListener('change', function() {
+  if (this.value) {
+    document.getElementById('typeError').style.display = 'none';
+  }
+});
+
+// Handle tier selection and error display
+document.getElementById('tierRadioContainer').addEventListener('change', function() {
+  const tierChecks = document.querySelectorAll('input[name="tier"]:checked');
+  if (tierChecks.length > 0) {
+    document.getElementById('tierError').style.display = 'none';
+  }
+});
+
+// Don't clear previous rows, so they stay and new rows are appended
+document.querySelector('.button-container').addEventListener('click', function(event) {
+  const resultsBody = document.getElementById('resultsBody');
+  const avgResultsBody = document.getElementById('avgResultsBody');
+
+  // Comment out the following lines to avoid clearing previous results
+  // resultsBody.innerHTML = ''; 
+  // avgResultsBody.innerHTML = ''; 
+});
+
+</script>
+</body>
+</html>
