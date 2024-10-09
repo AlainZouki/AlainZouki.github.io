@@ -412,14 +412,14 @@
           row.insertCell(1).textContent = record.facility;
           row.insertCell(2).textContent = record.tier;
           row.insertCell(3).textContent = record.Storage_Type;
-          row.insertCell(4).textContent = record.volume;
-          row.insertCell(5).textContent = record.vm;
-          row.insertCell(6).textContent = record.state;
+          row.insertCell(4).textContent = record.Volume;
+          row.insertCell(5).textContent = record.vm_name;
+          row.insertCell(6).textContent = record.Power_State;
           row.insertCell(7).textContent = record.Memory_GB;
           row.insertCell(8).textContent = record.Used_Space_GB;
           row.insertCell(9).textContent = record.Free_Space_GB;
           row.insertCell(10).textContent = record.Allocated_Space_GB;
-          row.insertCell(11).textContent = record.rf;
+          row.insertCell(11).textContent = record.RF;
         });
 
         document.getElementById('listingResultsTable').style.display = 'block';
