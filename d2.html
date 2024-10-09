@@ -225,7 +225,7 @@
         <th>RF</th>
       </tr>
     </thead>
-       <tbody>
+       <tbody id="listingResultsBody">
       <!-- Rows will be dynamically added here -->
     </tbody>
   </table>
@@ -311,6 +311,8 @@
     const avgResultsTable = document.getElementById('avgResultsTable');
     const resultsBody = document.getElementById('resultsBody');
     const avgResultsBody = document.getElementById('avgResultsBody');
+    const listingResultsTable = document.getElementById('listingResultsTable');
+    const listingResultsTable = document.getElementById('listingResultsTable');
     const readout = document.getElementById('readout');
 
     resultsBody.innerHTML = ''; // Clear previous results
@@ -412,10 +414,10 @@
       });
 
       // Show the table
-      const resultContainer = document.getElementById('resultContainer');
-      const resultTableBody = document.getElementById('resultTable').querySelector('tbody');
-      resultTableBody.innerHTML = ''; // Clear existing rows
-      resultContainer.style.display = 'block';
+      //const resultContainer = document.getElementById('resultContainer');
+      //const resultTableBody = document.getElementById('resultTable').querySelector('tbody');
+      listingResultsBody.innerHTML = ''; // Clear existing rows
+      listingResultsTable.style.display = 'block';
       document.getElementById('formContainer').style.display = 'none';
 
       if (filteredRecords.length > 0) {
@@ -426,7 +428,7 @@
 
         // Function to render the table rows for the current page
         function renderTableRows() {
-          resultTableBody.innerHTML = '';
+          listingResultsBody.innerHTML = '';
           const startIndex = (currentPage - 1) * rowsPerPage;
           const endIndex = Math.min(startIndex + rowsPerPage, filteredRecords.length);
           
@@ -447,7 +449,7 @@
               <td>${record.Allocated_Space_GB}</td>
               <td>${record.RF}</td>
             `;
-            resultTableBody.appendChild(row);
+            listingResultsBody.appendChild(row);
           }
 
           // Update pagination info
@@ -476,7 +478,7 @@
 
       } else {
         // No records found: show only the table headers with no rows
-        resultTableBody.innerHTML = ''; // Just clear the rows, leaving the headers
+       listingResultsBody.innerHTML = ''; // Just clear the rows, leaving the headers
       }
     }
 
