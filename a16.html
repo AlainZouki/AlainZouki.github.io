@@ -144,13 +144,21 @@
       <span class="error" id="facilityError">Please select a facility.</span>
     </div>-->
 
-    <div class="dropdown-container">
+     <div class="dropdown-container">
+      <label><strong>Select Storage Type(s)</strong></label>
+      <div class="radio-container" id="sTypeRadioContainer">
+        <!-- Radio boxes for storage type selection will be added here -->
+      </div>
+      <span class="error" id="typeError">Please select at least one storage type.</span>
+    </div>
+
+    <!--<div class="dropdown-container">
       <label><strong>Select Storage Type</strong></label>
       <select id="storageTypeDropdown">
         <option value="">Select a Storage Type</option>
       </select>
       <span class="error" id="typeError">Please select a storage type.</span>
-    </div>
+    </div>-->
 
     <div class="dropdown-container">
       <label><strong>Select Tier(s)</strong></label>
@@ -260,7 +268,18 @@
 
       const storageTypeValues = records.map(record => record.Storage_Type);
       const distinctStorageTypes = [...new Set(storageTypeValues)];
-      populateDropdown('storageTypeDropdown', distinctStorageTypes);
+      //populateDropdown('storageTypeDropdown', distinctStorageTypes);
+      const sTypeRadioContainer = document.getElementById('sTypeRadioContainer');
+      sTypeRadioContainer.innerHTML = ''; // Reset the radio container
+
+      distinctStorageTypes.forEach(Storage_Type => {
+        const label = document.createElement('label');
+        label.className = 'radio-item';
+        label.innerHTML = `
+          <input type="checkbox" name="Storage_Type" value="${Storage_Type}"> ${Storage_Type}
+        `;
+        sTypeRadioContainer.appendChild(label);
+      });
 
       const tierValues = records.map(record => record.tier);
       const distinctTiers = [...new Set(tierValues)];
@@ -285,12 +304,12 @@
     function handleButtonClick(event) {
       const vCenterDropdown = document.getElementById('vCenterDropdown');
       const facilityRadioContainer = document.getElementById('facilityRadioContainer');
-      const storageTypeDropdown = document.getElementById('storageTypeDropdown');
+      const sTypeRadioContainer = document.getElementById('sTypeRadioContainer');
       const tierRadioContainer = document.getElementById('tierRadioContainer');
 
       const selectedVCenter = vCenterDropdown.value;
       const selectedFacilities = [...facilityRadioContainer.querySelectorAll('input[name="facility"]:checked')];
-      const selectedStorageType = storageTypeDropdown.value;
+      const selectedStorageTypes = [...sTypeRadioContainer.querySelectorAll('input[name="Storage_Type"]:checked')];
       const selectedTiers = [...tierRadioContainer.querySelectorAll('input[name="tier"]:checked')];
 
       // Validate selections
@@ -308,7 +327,7 @@
         document.getElementById('facilityError').style.display = 'none';
       }
 
-      if (!selectedStorageType) {
+      if (selectedStorageTypes.length === 0) {
         document.getElementById('typeError').style.display = 'inline';
         return;
       } else {
@@ -325,7 +344,7 @@
       const filteredRecords = allRecords.filter(record => {
         return record.vCenter === selectedVCenter &&
                selectedFacilities.some(facility => record.facility === facility.value) &&
-               record.Storage_Type === selectedStorageType &&
+              selectedStorageTypes.some(Storage_Type => record.Storage_Type === Storage_Type.value) &&
                selectedTiers.some(tier => record.tier === tier.value);
       });
 
@@ -369,7 +388,7 @@
           <td>${selectedVCenter}</td>
           <td>${selectedFacilities.map(facility => facility.value).join(', ')}</td>
           <td>${selectedTiers.map(tier => tier.value).join(', ')}</td>
-          <td>${selectedStorageType}</td>
+          <td>${selectedStorageTypes.map(Storage_Type => Storage_Type.value).join(', ')}</td>
           <td>${count}</td>
           <td>${sumMemory.toFixed(2)}</td>
           <td>${sumUsedSpace.toFixed(2)}</td>
@@ -408,7 +427,7 @@
           <td>${selectedVCenter}</td>
           <td>${selectedFacilities.map(facility => facility.value).join(', ')}</td>
           <td>${selectedTiers.map(tier => tier.value).join(', ')}</td>
-          <td>${selectedStorageType}</td>
+          <td>${selectedStorageTypes.map(Storage_Type => Storage_Type.value).join(', ')}</td>
           <td>${count}</td>
           <td>${avgMemory.toFixed(2)}</td>
           <td>${avgUsedSpace.toFixed(2)}</td>
