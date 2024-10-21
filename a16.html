@@ -284,12 +284,12 @@
 
     function handleButtonClick(event) {
       const vCenterDropdown = document.getElementById('vCenterDropdown');
-      const facilityDropdown = document.getElementById('facilityDropdown');
+      const facilityRadioContainer = document.getElementById('facilityRadioContainer');
       const storageTypeDropdown = document.getElementById('storageTypeDropdown');
       const tierRadioContainer = document.getElementById('tierRadioContainer');
 
       const selectedVCenter = vCenterDropdown.value;
-      const selectedFacility = facilityDropdown.value;
+      const selectedFacilities = [...facilityRadioContainer.querySelectorAll('input[name="facility"]:checked')];
       const selectedStorageType = storageTypeDropdown.value;
       const selectedTiers = [...tierRadioContainer.querySelectorAll('input[name="tier"]:checked')];
 
@@ -301,7 +301,7 @@
         document.getElementById('vCenterError').style.display = 'none';
       }
 
-      if (!selectedFacility) {
+      if (selectedFacilities.length === 0) {
         document.getElementById('facilityError').style.display = 'inline';
         return;
       } else {
@@ -324,7 +324,7 @@
 
       const filteredRecords = allRecords.filter(record => {
         return record.vCenter === selectedVCenter &&
-               record.facility === selectedFacility &&
+               selectedFacilities.some(facility => record.facility === facility.value) &&
                record.Storage_Type === selectedStorageType &&
                selectedTiers.some(tier => record.tier === tier.value);
       });
@@ -367,7 +367,7 @@
 
         row.innerHTML = `
           <td>${selectedVCenter}</td>
-          <td>${selectedFacility}</td>
+          <td>${selectedFacilities.map(facility => facility.value).join(', ')}</td>
           <td>${selectedTiers.map(tier => tier.value).join(', ')}</td>
           <td>${selectedStorageType}</td>
           <td>${count}</td>
@@ -406,7 +406,7 @@
 
         row.innerHTML = `
           <td>${selectedVCenter}</td>
-          <td>${selectedFacility}</td>
+          <td>${selectedFacilities.map(facility => facility.value).join(', ')}</td>
           <td>${selectedTiers.map(tier => tier.value).join(', ')}</td>
           <td>${selectedStorageType}</td>
           <td>${count}</td>
