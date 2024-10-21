@@ -158,30 +158,6 @@
       <!-- <button class="button" id="listingButton">LIST</button> -->
     </div>
   </div>
-
-  <div class="results-table" id="resultsTable">
-    <h2>Results</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>vCenter</th>
-          <th>Facility</th>
-          <th>Tier</th>
-          <th>Storage Type</th>
-          <th>VM Count</th>
-          <th id="sumOrAvgMemory">SUM Memory GB</th>
-          <th id="sumOrAvgUsedSpace">SUM Used Space GB</th>
-          <th id="sumOrAvgFreeSpace">SUM Free Space GB</th>
-          <th id="sumOrAvgAllocatedSpace">SUM Allocated Space GB</th>
-        </tr>
-      </thead>
-      <tbody id="resultsBody">
-        <!-- Rows will be populated dynamically -->
-      </tbody>
-    </table>
-    <button class="button" id="backButton">Back</button>
-  </div>
-
   <div class="results-table" id="listTable">
     <h2>Results</h2>
     <table>
@@ -204,9 +180,30 @@
         <!-- Rows will be populated dynamically -->
       </tbody>
     </table>
-    <button class="button" id="LbackButton">Back</button>
+    <!--<button class="button" id="LbackButton">Back</button>-->
   </div>
-
+<div class="results-table" id="resultsTable">
+    <h2>Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>vCenter</th>
+          <th>Facility</th>
+          <th>Tier</th>
+          <th>Storage Type</th>
+          <th>VM Count</th>
+          <th id="sumOrAvgMemory">SUM Memory GB</th>
+          <th id="sumOrAvgUsedSpace">SUM Used Space GB</th>
+          <th id="sumOrAvgFreeSpace">SUM Free Space GB</th>
+          <th id="sumOrAvgAllocatedSpace">SUM Allocated Space GB</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+        <!-- Rows will be populated dynamically -->
+      </tbody>
+    </table>
+    <button class="button" id="backButton">Back</button>
+  </div>
   <script>
     grist.ready();
 
@@ -460,11 +457,11 @@
     });
 
     // Back button functionality for listing table
-    document.getElementById('LbackButton').addEventListener('click', function() {
+   /* document.getElementById('LbackButton').addEventListener('click', function() {
       document.getElementById('listTable').style.display = 'none';
       document.getElementById('formContainer').style.display = 'block';
       document.getElementById('resultsTable').style.display = 'none';
-    });
+    });*/
 
     document.getElementById('listTable').style.display = 'none'; // Hide listing table by default
   </script>
